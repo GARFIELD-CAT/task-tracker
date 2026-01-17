@@ -14,7 +14,6 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-
 class User(Base):
     __tablename__ = "users"
 
@@ -25,7 +24,7 @@ class User(Base):
     last_name = Column(String(255))
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=dt.now(datetime.UTC))
-    role = Column(
+    role_id = Column(
         Integer,
         ForeignKey("role.id", ondelete="SET NULL"),
         nullable=True,

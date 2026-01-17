@@ -10,9 +10,9 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
-
 
 
 class Task(Base):
@@ -21,12 +21,12 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), unique=True)
     description = Column(Text, nullable=True)
-    assignee = Column(
+    assignee_id = Column(
         Integer,
         ForeignKey("user.id", ondelete="SET NULL"),
         nullable=True,
     )
-    status = Column(
+    status_id = Column(
         Integer,
         ForeignKey("status.id", ondelete="SET NULL"),
         nullable=True,
@@ -35,6 +35,9 @@ class Task(Base):
     updated_at = Column(DateTime, nullable=True)
     closed_at = Column(DateTime, nullable=True)
     started_work_at = Column(DateTime, nullable=True)
+
+    assignee = relationship("User", back_populates="tasks",  lazy="subquery")
+    status = relationship("Status", back_populates="tasks", lazy="subquery")
 
     def __repr__(self):
         return (

@@ -2,7 +2,7 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
-    Text,
+    Text, ARRAY,
 )
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -15,7 +15,7 @@ class Role(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), unique=True)
     description = Column(Text, nullable=True)
-    permissions = Column(Text)
+    permissions = Column(ARRAY(String))
 
     def __repr__(self):
         return (
