@@ -16,16 +16,13 @@ class ApiConfig(BaseSettings):
     project_port: int = 8000
     project_host: str = "127.0.0.1"
 
-    # postgres_user: str = "postgres"
-    # postgres_password: str = "postgres"
-    # postgres_db: str = "postgres"
-    # postgres_port: int = 5432
-    # postgres_host: str = "localhost"
+    postgres_user: str = "postgres"
+    postgres_password: str = "password"
+    postgres_db: str = "master"
+    postgres_port: int = 5432
+    postgres_host: str = "localhost"
 
-    # pg_auth: Optional[URL] = None
-    #
-    # redis_host: str = "localhost"
-    # redis_port: int = 6379
+    pg_auth: Optional[URL] = None
 
     logger_level: str = "INFO"
 
@@ -33,14 +30,14 @@ class ApiConfig(BaseSettings):
 settings = ApiConfig()
 
 
-# settings.pg_auth = URL.create(
-#     "postgresql+asyncpg",
-#     username=settings.postgres_user,
-#     password=settings.postgres_password,
-#     host=settings.postgres_host,
-#     port=settings.postgres_port,
-#     database=settings.postgres_db,
-# )
+settings.pg_auth = URL.create(
+    "postgresql+asyncpg",
+    username=settings.postgres_user,
+    password=settings.postgres_password,
+    host=settings.postgres_host,
+    port=settings.postgres_port,
+    database=settings.postgres_db,
+)
 
 
 if __name__ == "__main__":

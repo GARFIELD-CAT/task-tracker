@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import uvicorn
@@ -6,7 +7,7 @@ from fastapi import FastAPI
 from api.v1.task import task_router
 
 from core.settings import settings
-# from services.main_service import main_service
+from services.main_service import main_service
 
 logging.basicConfig(level=settings.logger_level)
 app = FastAPI(
@@ -19,7 +20,7 @@ app.include_router(task_router, prefix="/api/v1/tasks")
 
 
 if __name__ == "__main__":
-    # asyncio.run(main_service.init_db())
+    asyncio.run(main_service.init_db())
 
     uvicorn.run(
         app="main:app",
