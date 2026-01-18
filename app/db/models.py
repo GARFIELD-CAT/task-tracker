@@ -61,7 +61,7 @@ class Task(Base):
         Integer, ForeignKey("users.id", ondelete="SET NULL"),
     )
     status = Column(String(20), default=TaskStatuses.TO_DO.value)
-    created_at = Column(DateTime, default=dt.now)
+    created_at = Column(DateTime, default=dt.now())
     updated_at = Column(DateTime, nullable=True, default=dt.now())
     closed_at = Column(DateTime, nullable=True, default=None)
     started_work_at = Column(DateTime, nullable=True, default=None)
