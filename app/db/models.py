@@ -58,10 +58,7 @@ class Task(Base):
     title = Column(String(255))
     description = Column(Text, nullable=True, default="")
     assignee_id = Column(
-        Integer,
-        ForeignKey("users.id", ondelete="SET NULL"),
-        nullable=True,
-        default=None,
+        Integer, ForeignKey("users.id", ondelete="SET NULL"),
     )
     status = Column(String(20), default=TaskStatuses.TO_DO.value)
     created_at = Column(DateTime, default=dt.now)
