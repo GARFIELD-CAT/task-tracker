@@ -5,7 +5,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Query, Depends
 
 from app.db.models import User, UserRoles
-from app.schemes.task import ResponseTask, CreateTask, UpdateTask
+from app.schemes.task import ResponseTask, CreateTask, UpdateTask, TaskFilter
 from app.security.auth import auth_service
 from app.services.task import task_service
 
@@ -116,13 +116,14 @@ async def get_tasks(
     limit: int = Query(25, gt=0, lt=101),
     sort_by: str = Query("id"),
     ascending: bool = Query(True),
-    current_user: User = Depends(auth_service.get_current_user)
+    filter: TaskFilter = Depends(),
+    current_user: User = Depends(auth_service.get_current_user),
 ):
     await auth_service.check_required_role(
         current_user, [UserRoles.ADMIN, UserRoles.USER]
     )
 
     try:
-        return await task_service.get_tasks(skip, limit, sort_by, ascending, current_user)
+        return await task_service.get_tasks(skip, limit, sort_by, ascending, filter, current_user)
     except AttributeError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))

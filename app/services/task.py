@@ -1,10 +1,10 @@
 import logging
 from typing import List, Optional
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, func
 
 from app.db.models import Task, User, UserRoles
-from app.schemes.task import CreateTask
+from app.schemes.task import CreateTask, TaskFilter
 from app.security.errors import AuthorizationError
 from app.services.main_service import MainService
 from app.services.mappings import TASK_STATUSES_MAPPING
@@ -121,14 +121,28 @@ class TaskService(MainService):
                     f"Задача c {id=} принадлежит другому пользователю и не может быть обновлена."
                 )
 
-    async def get_tasks(self, skip: int, limit: int, sort_by: str, ascending: bool, current_user: User) -> List[Task]:
+    async def get_tasks(self, skip: int, limit: int, sort_by: str, ascending: bool, filter: TaskFilter, current_user: User) -> List[Task]:
         session = self._get_async_session()
+        query = select(Task)
+
+        if filter.title:
+            query = query.where(Task.title.contains(filter.title))
+
+        if filter.status:
+            query = query.where(Task.status == filter.status)
+
+        if filter.created_at:
+            query = query.where(func.date(Task.created_at) == filter.created_at)
+
+        if filter.closed_at:
+            query = query.where(func.date(Task.closed_at) == filter.closed_at)
 
         async with session() as db_session:
             if current_user.role == UserRoles.USER:
-                query = select(Task).filter_by(assignee_id=current_user.id)
+                query = query.filter_by(assignee_id=current_user.id)
             else:
-                query = select(Task)
+                if filter.assignee_id is not None:
+                    query = query.where(Task.assignee_id == filter.assignee_id)
 
             field = getattr(Task, sort_by, None)
 

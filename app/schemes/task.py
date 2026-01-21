@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, Literal
 
+from fastapi import Query
 from pydantic import BaseModel, Field
 
 from app.db.models import TaskStatuses
@@ -30,3 +31,11 @@ class UpdateTask(BaseModel):
     status: str = Field(description="Статус задачи", default=None)
     closed_at: datetime = Field(description="Дата закрытия задачи", default=None)
     started_work_at: datetime = Field(description="Дата взятия в работу задачи", default=None)
+
+
+class TaskFilter(BaseModel):
+    title: Optional[str] = Query(None)
+    status: Optional[str] = Query(None)
+    assignee_id: Optional[int] = Query(None)
+    created_at: Optional[date] = Query(None)
+    closed_at: Optional[date] = Query(None)
