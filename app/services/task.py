@@ -7,6 +7,7 @@ from app.db.models import Task, User, UserRoles
 from app.schemes.task import CreateTask
 from app.security.errors import AuthorizationError
 from app.services.main_service import MainService
+from app.services.mappings import TASK_STATUSES_MAPPING
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +98,15 @@ class TaskService(MainService):
                 current_user.role == UserRoles.USER and task.assignee_id == current_user.id
             ) or (current_user.role == UserRoles.ADMIN):
                 for key, value in kwargs.items():
+                    if key == 'status':
+                        if not self.is_valid_new_task_status(
+                            task.status, value
+                        ):
+                            raise ValueError(
+                                f"Задача не может сменить статус с {task.status} на {value}. "
+                                f"Доступные варианты: {TASK_STATUSES_MAPPING[task.status]}"
+                            )
+
                     if value:
                         setattr(task, key, value)
 
@@ -133,6 +143,9 @@ class TaskService(MainService):
             result = await db_session.execute(query.offset(skip).limit(limit))
 
             return result.scalars().all()
+
+    def is_valid_new_task_status(self, current_status: str, new_status: str) -> bool:
+        return new_status in TASK_STATUSES_MAPPING[current_status]
 
 
 task_service = TaskService()
