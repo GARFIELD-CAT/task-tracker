@@ -8,7 +8,6 @@ from app.db.models import TaskStatuses
 class CreateTask(BaseModel):
     title: str = Field(description="Название задачи", max_length=255, min_length=1)
     description: Optional[str] = Field(description="Описание задачи", default=None)
-    assignee_id: int = Field(description="Исполнитель задачи")
     status: Literal[
         TaskStatuses.TO_DO, TaskStatuses.IN_PROGRESS, TaskStatuses.DONE, TaskStatuses.CANCELLED
     ] = Field(description="Статус задачи")

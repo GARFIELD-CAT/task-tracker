@@ -8,6 +8,8 @@ DB_URL = settings.pg_auth
 
 
 class MainService:
+    _engine = None
+
     def __init__(self, db_url: str = DB_URL):
         self._db_url = db_url
         self._engine = create_async_engine(self._db_url, echo=True)
