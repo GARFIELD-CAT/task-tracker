@@ -104,7 +104,8 @@ class TaskService(MainService):
                         ):
                             raise ValueError(
                                 f"Задача не может сменить статус с {task.status} на {value}. "
-                                f"Доступные варианты: {TASK_STATUSES_MAPPING[task.status]}"
+                                f"Доступные варианты: {TASK_STATUSES_MAPPING[task.status] 
+                                if TASK_STATUSES_MAPPING[task.status] else "Нет доступных статусов"}"
                             )
 
                     if value:
