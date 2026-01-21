@@ -1,10 +1,10 @@
 import logging
 from typing import List, Optional
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, func
 
 from app.db.models import User, UserRoles
-from app.schemes.user import CreateUser
+from app.schemes.user import CreateUser, UserFilter
 from app.security.auth import auth_service
 from app.security.errors import AuthorizationError
 from app.services.main_service import MainService
@@ -123,8 +123,21 @@ class UserService(MainService):
                 f"Запись пользователя c {id=} принадлежит другому пользователю и не может быть обновлена."
             )
 
-    async def get_users(self, skip: int, limit: int, sort_by: str, ascending: bool) -> List[User]:
+    async def get_users(self, skip: int, limit: int, sort_by: str, ascending: bool, filter: UserFilter) -> List[User]:
         session = self._get_async_session()
+        query = select(User)
+
+        if filter.email:
+            query = query.where(User.email.contains(filter.email))
+
+        if filter.first_name:
+            query = query.where(User.first_name.contains(filter.first_name))
+
+        if filter.last_name:
+            query = query.where(User.last_name.contains(filter.last_name))
+
+        if filter.created_at:
+            query = query.where(func.date(User.created_at) == filter.created_at)
 
         async with session() as db_session:
             field = getattr(User, sort_by, None)
@@ -134,9 +147,9 @@ class UserService(MainService):
                 raise AttributeError(f"У пользователя нет поля '{sort_by}'.")
 
             if ascending:
-                query = select(User).order_by(field)
+                query = query.order_by(field)
             else:
-                query = select(User).order_by(field).desc()
+                query = query.order_by(field).desc()
 
             result = await db_session.execute(query.offset(skip).limit(limit))
 

@@ -5,7 +5,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Query, Depends
 
 from app.db.models import User, UserRoles
-from app.schemes.user import CreateUser, ResponseUser, UpdateUser
+from app.schemes.user import CreateUser, ResponseUser, UpdateUser, UserFilter
 from app.security.auth import auth_service
 from app.services.user import user_service
 
@@ -116,6 +116,7 @@ async def get_users(
     limit: int = Query(25, gt=0, lt=101),
     sort_by: str = Query("id"),
     ascending: bool = Query(True),
+    filter: UserFilter = Depends(),
     current_user: User = Depends(auth_service.get_current_user)
 ):
     await auth_service.check_required_role(
@@ -123,6 +124,6 @@ async def get_users(
     )
 
     try:
-        return await user_service.get_users(skip, limit, sort_by, ascending)
+        return await user_service.get_users(skip, limit, sort_by, ascending, filter)
     except AttributeError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))

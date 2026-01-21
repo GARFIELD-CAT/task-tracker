@@ -1,5 +1,7 @@
-from datetime import datetime
+from datetime import datetime, date
+from typing import Optional
 
+from fastapi import Query
 from pydantic import BaseModel, Field
 from pydantic.v1 import validator
 
@@ -32,3 +34,10 @@ class UpdateUser(BaseModel):
     password: str = Field(description="Пароль пользователя", max_length=255, min_length=8, default=None)
     first_name: str = Field(description="Имя пользователя", max_length=255, default=None)
     last_name: str = Field(description="Фамилия пользователя", max_length=255, default=None)
+
+
+class UserFilter(BaseModel):
+    email: Optional[str] = Query(None)
+    first_name: Optional[str] = Query(None)
+    last_name: Optional[str] = Query(None)
+    created_at: Optional[date] = Query(None)
