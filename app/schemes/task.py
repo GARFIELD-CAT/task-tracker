@@ -2,7 +2,7 @@ from datetime import datetime, date
 from typing import Optional, Literal
 
 from fastapi import Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.db.models import TaskStatuses
 
@@ -28,9 +28,11 @@ class UpdateTask(BaseModel):
     title: str = Field(description="Название задачи", default=None)
     description: str = Field(description="Описание задачи", default=None)
     assignee_id: int = Field(description="Исполнитель задачи", default=None)
-    status: str = Field(description="Статус задачи", default=None)
-    closed_at: datetime = Field(description="Дата закрытия задачи", default=None)
-    started_work_at: datetime = Field(description="Дата взятия в работу задачи", default=None)
+    status: Literal[
+        TaskStatuses.IN_PROGRESS.value,
+        TaskStatuses.DONE.value,
+        TaskStatuses.CANCELLED.value
+    ] = Field(description="Статус задачи", default=None)
 
 
 class TaskFilter(BaseModel):

@@ -78,4 +78,11 @@ class Task(Base):
 # Обработчик события для обновления поля updated_at
 @event.listens_for(Task, 'before_update')
 def receive_before_update(mapper, connection, target):
-    target.updated_at = dt.now()
+    now = dt.now()
+
+    if target.status == TaskStatuses.DONE.value:
+        target.closed_at = now
+    elif target.status == TaskStatuses.IN_PROGRESS.value:
+        target.started_work_at = now
+
+    target.updated_at = now

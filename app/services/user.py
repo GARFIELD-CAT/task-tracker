@@ -108,7 +108,7 @@ class UserService(MainService):
                     if key == 'password':
                         value = auth_service.get_password_hash(
                             value
-                        )
+                        ) if value else value
 
                     if value:
                         setattr(user, key, value)
