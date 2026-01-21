@@ -33,7 +33,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True)
+    email = Column(String(255), unique=True, index=True)
     password = Column(String(60))
     first_name = Column(String(255))
     last_name = Column(String(255))
@@ -41,7 +41,7 @@ class User(Base):
     created_at = Column(DateTime(), default=dt.now())
     role = Column(String(60), default=UserRoles.USER.value)
 
-    tasks = relationship("Task", back_populates="assignee",  lazy="subquery")
+    tasks = relationship("Task", back_populates="assignee",  lazy="subquery", cascade="all, delete-orphan")
 
     def __repr__(self):
         return (
@@ -55,16 +55,16 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(255))
+    title = Column(String(255), index=True)
     description = Column(Text, nullable=True, default="")
     assignee_id = Column(
         Integer, ForeignKey("users.id", ondelete="SET NULL"),
     )
-    status = Column(String(20), default=TaskStatuses.TO_DO.value)
-    created_at = Column(DateTime, default=dt.now())
+    status = Column(String(20), default=TaskStatuses.TO_DO.value, index=True)
+    created_at = Column(DateTime, default=dt.now(), index=True)
     updated_at = Column(DateTime, nullable=True, default=dt.now())
-    closed_at = Column(DateTime, nullable=True, default=None)
-    started_work_at = Column(DateTime, nullable=True, default=None)
+    closed_at = Column(DateTime, nullable=True, default=None, index=True)
+    started_work_at = Column(DateTime, nullable=True, default=None, index=True)
 
     assignee = relationship("User", back_populates="tasks",  lazy="subquery")
 
@@ -80,7 +80,7 @@ class Task(Base):
 def receive_before_update(mapper, connection, target):
     now = dt.now()
 
-    if target.status == TaskStatuses.DONE.value:
+    if target.status in (TaskStatuses.DONE.value, TaskStatuses.CANCELLED.value):
         target.closed_at = now
     elif target.status == TaskStatuses.IN_PROGRESS.value:
         target.started_work_at = now
