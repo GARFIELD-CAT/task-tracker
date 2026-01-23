@@ -27,7 +27,7 @@ def upgrade() -> None:
             "INSERT INTO users (email, password, first_name, last_name, is_active, created_at, role) VALUES "
             "('admin@example.com', '$2b$12$zXneSGKuiys5ax1Hup/2CeH5I.vOazuw/akeYKd7Qu2EC1UGrdm76', 'Admin', 'Admin', true, NOW(), 'ADMIN'), " # hashedPassword1
             "('user1@example.com', '$2b$12$zXneSGKuiys5ax1Hup/2CeH5I.vOazuw/akeYKd7Qu2EC1UGrdm76', 'John', 'Doe', true, NOW(), 'USER'), " # hashedPassword1
-            "('user2@example.com', '$2b$12$D3EDr0tzT7OmuroDgYR4a.Asv9hulAFkfNNCYqhnUknBCWROrlroq', 'Jane', 'Smith', true, NOW(), 'USER'), " # hashedPassword2
+            "('user2@example.com', '$2b$12$D3EDr0tzT7OmuroDgYR4a.Asv9hulAFkfNNCYqhnUknBCWROrlroq', 'Jack', 'Sparrow', true, NOW(), 'USER'), " # hashedPassword2
             "('user3@example.com', '$2b$12$D3EDr0tzT7OmuroDgYR4a.Asv9hulAFkfNNCYqhnUknBCWROrlroq', 'Jane', 'Smith', true, NOW(), 'USER')" # hashedPassword2
         )
     )
