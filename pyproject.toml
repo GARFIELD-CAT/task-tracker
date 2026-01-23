@@ -19,6 +19,8 @@ python-jose = {extras = ["cryptography"], version = "^3.5.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 bcrypt = "==4.3.0"
 alembic = "^1.18.1"
+pandas = "^3.0.0"
+plotly = "^6.5.2"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

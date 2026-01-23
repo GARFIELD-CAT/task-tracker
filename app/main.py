@@ -5,6 +5,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from api.v1.task import task_router
+from app.api.v1.analytics import analytics_router
 from app.api.v1.auth import auth_router
 from app.api.v1.user import user_router
 
@@ -33,6 +34,7 @@ app.add_middleware(
 app.include_router(task_router, prefix="/api/v1/tasks")
 app.include_router(user_router, prefix="/api/v1/users")
 app.include_router(auth_router, prefix="/api/v1/auth")
+app.include_router(analytics_router, prefix="/api/v1/analytics")
 
 
 if __name__ == "__main__":
