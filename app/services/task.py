@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 
-from sqlalchemy import delete, select, func
+from sqlalchemy import delete, select, func, desc
 
 from app.db.models import Task, User, UserRoles
 from app.schemes.task import CreateTask, TaskFilter
@@ -50,7 +50,7 @@ class TaskService(MainService):
 
             return None
 
-    async def delete_task(self, id: int, current_user, User) -> None:
+    async def delete_task(self, id: int, current_user: User) -> None:
         session = self._get_async_session()
 
         async with session() as db_session:
@@ -153,7 +153,7 @@ class TaskService(MainService):
             if ascending:
                 query = query.order_by(field)
             else:
-                query = query.order_by(field).desc()
+                query = query.order_by(desc(field))
 
             result = await db_session.execute(query.offset(skip).limit(limit))
 

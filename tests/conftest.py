@@ -4,13 +4,10 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from faker import Faker
-from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from app.db.models import Base, UserRoles, TaskStatuses, User, Task
-from app.services.task import TaskService
-from app.services.user import UserService
+from app.db.models import Base, User, Task
 
 load_dotenv()
 
@@ -107,38 +104,54 @@ async def create_multiple_users(db_session, user_data_generator):
     return _create_multiple_users
 
 
-
 @pytest.fixture
-def create_task(db_session, task_data_generator):
+def task_data_generator(faker):
+    """Генератор тестовых задач"""
+
+    def _generate_task_data(**overrides):
+        base_data = {
+            'title': faker.sentence(nb_words=5),
+            'description': faker.text(max_nb_chars=300),
+            'assignee_id': None,
+            'status': 'To Do',
+        }
+
+        return {**base_data, **overrides}
+    return _generate_task_data
+
+
+@pytest_asyncio.fixture(scope='function')
+async def create_task(db_session, task_data_generator):
     """Фабрика задач с Faker"""
 
-    def _create_task(**overrides):
-        task_data = task_data_generator(**overrides)
-        task = Task(**task_data)
-        db_session.add(task)
-        db_session.commit()
+    async def _create_task(**overrides):
+        async with db_session as session:
+            task_data = task_data_generator(**overrides)
+            task = Task(**task_data)
+
+            db_session.add(task)
+            await session.commit()
 
         return task
-
     return _create_task
 
 
-#
-#
-# @pytest.fixture
-# def create_multiple_task(db_session, task_data_generator):
-#     """Фабрика для создания нескольких задач для пользователя"""
-#
-#     def _create_multiple_posts(count=3, assignee_id=None):
-#         tasks = []
-#
-#         for _ in range(count):
-#             task_data = task_data_generator(assignee_id=assignee_id)
-#             task = Task(**task_data)
-#             db_session.add(task)
-#             tasks.append(task)
-#
-#         db_session.commit()
-#
-#         return tasks
-#     return _create_multiple_posts
+@pytest_asyncio.fixture(scope='function')
+async def create_multiple_task(db_session, task_data_generator):
+    """Фабрика для создания нескольких задач для пользователя"""
+
+    async def _create_multiple_posts(count=3, assignee_id=None):
+        tasks = []
+
+        async with db_session as session:
+            for _ in range(count):
+                task_data = task_data_generator(assignee_id=assignee_id)
+                task = Task(**task_data)
+                db_session.add(task)
+                tasks.append(task)
+
+            session.add_all(tasks)
+            await session.commit()
+
+        return tasks
+    return _create_multiple_posts
