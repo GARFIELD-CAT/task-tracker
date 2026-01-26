@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 
-from sqlalchemy import delete, select, func
+from sqlalchemy import delete, select, func, desc
 
 from app.db.models import User, UserRoles
 from app.schemes.user import CreateUser, UserFilter
@@ -149,7 +149,7 @@ class UserService(MainService):
             if ascending:
                 query = query.order_by(field)
             else:
-                query = query.order_by(field).desc()
+                query = query.order_by(desc(field))
 
             result = await db_session.execute(query.offset(skip).limit(limit))
 
