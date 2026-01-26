@@ -116,7 +116,7 @@ async def test_delete_user(db_session, create_user):
 
 
 @pytest.mark.asyncio
-async def test_delete_with_not_enough_user_permissions(db_session, create_user):
+async def test_delete_user_with_not_enough_user_permissions(db_session, create_user):
     user_id = 2
     user = await create_user()
     user_service = UserService()
@@ -128,7 +128,7 @@ async def test_delete_with_not_enough_user_permissions(db_session, create_user):
 
 
 @pytest.mark.asyncio
-async def test_delete_with_not_found_user(db_session, create_user):
+async def test_delete_user_with_not_found_user(db_session, create_user):
     user_id = 2
     user = await create_user(role='ADMIN')
     user_service = UserService()
@@ -159,7 +159,7 @@ async def test_update_user(db_session, create_user):
 
 
 @pytest.mark.asyncio
-async def test_update_with_not_enough_user_permissions(db_session, create_user):
+async def test_update_user_with_not_enough_user_permissions(db_session, create_user):
     user_id = 2
     update_data = UpdateUser(
         email='new_user@test.com',
@@ -179,7 +179,7 @@ async def test_update_with_not_enough_user_permissions(db_session, create_user):
 
 
 @pytest.mark.asyncio
-async def test_update_with_not_found_user(db_session, create_user):
+async def test_update_user_with_not_found_user(db_session, create_user):
     user_id = 2
     user = await create_user(role='ADMIN')
     update_data = UpdateUser(
@@ -199,7 +199,7 @@ async def test_update_with_not_found_user(db_session, create_user):
 
 
 @pytest.mark.parametrize(
-    "skip,limit,sort_by,ascending,filter,expected_count, expected_last_user_id",
+    "skip,limit,sort_by,ascending,filter,expected_count,expected_last_user_id",
     [
         (
             0,
