@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 
-from sqlalchemy import delete, select, func, desc
+from sqlalchemy import delete, desc, func, select
 
 from app.db.models import User, UserRoles
 from app.schemes.user import CreateUser, UserFilter
@@ -29,17 +29,13 @@ class UserService(MainService):
             old_user = result.scalars().one_or_none()
 
             if old_user:
-                logger.error(
-                    f"Пользователь с {email=} уже был создан."
-                )
+                logger.error(f"Пользователь с {email=} уже был создан.")
                 raise ValueError(f"Пользователь с {email=} уже был создан.")
 
             db_session.add(user)
             await db_session.commit()
 
-            logger.info(
-                f"Пользователь c параметрами: {user=} успешно создан."
-            )
+            logger.info(f"Пользователь c параметрами: {user=} успешно создан.")
 
             return user
 
@@ -47,9 +43,7 @@ class UserService(MainService):
         session = self._get_async_session()
 
         async with session() as db_session:
-            result = await db_session.execute(
-                select(User).filter_by(id=id)
-            )
+            result = await db_session.execute(select(User).filter_by(id=id))
 
             return result.scalars().first()
 
@@ -66,9 +60,9 @@ class UserService(MainService):
     async def delete_user(self, id: int, current_user: User) -> None:
         session = self._get_async_session()
 
-        if (
-            current_user.role == UserRoles.USER and id == current_user.id
-        ) or (current_user.role == UserRoles.ADMIN):
+        if (current_user.role == UserRoles.USER and id == current_user.id) or (
+            current_user.role == UserRoles.ADMIN
+        ):
             async with session() as db_session:
                 result = await db_session.execute(
                     delete(User).filter_by(id=id)
@@ -83,17 +77,15 @@ class UserService(MainService):
                     raise ValueError(f"Пользователь c {id=} не найден.")
         else:
             raise AuthorizationError(
-                f"Запись пользователя c {id=} принадлежит другому пользователю и не может быть удалена."
+                f"Запись пользователя c {id=} принадлежит другому пользователю и не может быть удалена."  # noqa: E501
             )
 
-    async def update_user(
-        self, id: int, current_user: User, **kwargs
-    ) -> User:
+    async def update_user(self, id: int, current_user: User, **kwargs) -> User:
         session = self._get_async_session()
 
-        if (
-            current_user.role == UserRoles.USER and id == current_user.id
-        ) or (current_user.role == UserRoles.ADMIN):
+        if (current_user.role == UserRoles.USER and id == current_user.id) or (
+            current_user.role == UserRoles.ADMIN
+        ):
             async with session() as db_session:
                 result = await db_session.execute(
                     select(User).filter_by(id=id)
@@ -105,10 +97,12 @@ class UserService(MainService):
                     raise ValueError(f"Пользователь c {id=} не найден.")
 
                 for key, value in kwargs.items():
-                    if key == 'password':
-                        value = auth_service.get_password_hash(
-                            value
-                        ) if value else value
+                    if key == "password":
+                        value = (
+                            auth_service.get_password_hash(value)
+                            if value
+                            else value
+                        )
 
                     if value:
                         setattr(user, key, value)
@@ -120,10 +114,17 @@ class UserService(MainService):
                 return user
         else:
             raise AuthorizationError(
-                f"Запись пользователя c {id=} принадлежит другому пользователю и не может быть обновлена."
+                f"Запись пользователя c {id=} принадлежит другому пользователю и не может быть обновлена."  # noqa: E501
             )
 
-    async def get_users(self, skip: int, limit: int, sort_by: str, ascending: bool, filter: UserFilter) -> List[User]:
+    async def get_users(
+        self,
+        skip: int,
+        limit: int,
+        sort_by: str,
+        ascending: bool,
+        filter: UserFilter,
+    ) -> List[User]:
         session = self._get_async_session()
         query = select(User)
 
@@ -137,7 +138,9 @@ class UserService(MainService):
             query = query.where(User.last_name.contains(filter.last_name))
 
         if filter.created_at:
-            query = query.where(func.date(User.created_at) == filter.created_at)
+            query = query.where(
+                func.date(User.created_at) == filter.created_at
+            )
 
         async with session() as db_session:
             field = getattr(User, sort_by, None)

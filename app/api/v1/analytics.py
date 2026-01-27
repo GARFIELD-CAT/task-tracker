@@ -1,9 +1,8 @@
 import logging
 from http import HTTPStatus
 
-from fastapi.responses import HTMLResponse
-
 from fastapi import APIRouter
+from fastapi.responses import HTMLResponse
 
 from app.services.analytics import analytics_service
 

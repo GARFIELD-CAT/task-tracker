@@ -3,12 +3,12 @@ import logging
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1.task import task_router
 from app.api.v1.analytics import analytics_router
 from app.api.v1.auth import auth_router
+from app.api.v1.task import task_router
 from app.api.v1.user import user_router
-
 from app.core.settings import settings
 from app.services.main_service import main_service
 
@@ -20,8 +20,6 @@ app = FastAPI(
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
 )
-
-from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Union
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
@@ -22,7 +22,7 @@ class ApiConfig(BaseSettings):
     postgres_port: int = 5432
     postgres_host: str = "localhost"
 
-    pg_auth: Optional[URL] = None
+    pg_auth: Union[str, URL] = ""
 
     logger_level: str = "INFO"
 

@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import pytest
 
-from app.db.models import UserRoles, User
+from app.db.models import User, UserRoles
 from app.schemes.user import UserFilter
 from app.security.auth import auth_service
 
@@ -12,37 +12,37 @@ from app.security.auth import auth_service
     "current_user_role, expected_status, expected_result",
     [
         (
-                UserRoles.ADMIN.value,
-                HTTPStatus.OK,
-                {
-                    'created_at': datetime.datetime.now(),
-                    'email': 'test1@gmail.com',
-                    'first_name': 'Денис',
-                    'id': 1,
-                    'is_active': True,
-                    'last_name': 'Ягунов',
-                    'role': 'ADMIN'
-                }
+            UserRoles.ADMIN.value,
+            HTTPStatus.OK,
+            {
+                "created_at": datetime.datetime.now(),
+                "email": "test1@gmail.com",
+                "first_name": "Денис",
+                "id": 1,
+                "is_active": True,
+                "last_name": "Ягунов",
+                "role": "ADMIN",
+            },
         ),
         (
-                UserRoles.USER.value,
-                HTTPStatus.OK,
-                {
-                    'created_at': datetime.datetime.now(),
-                    'email': 'test1@gmail.com',
-                    'first_name': 'Денис',
-                    'id': 1,
-                    'is_active': True,
-                    'last_name': 'Ягунов',
-                    'role': 'USER'
-                }
+            UserRoles.USER.value,
+            HTTPStatus.OK,
+            {
+                "created_at": datetime.datetime.now(),
+                "email": "test1@gmail.com",
+                "first_name": "Денис",
+                "id": 1,
+                "is_active": True,
+                "last_name": "Ягунов",
+                "role": "USER",
+            },
         ),
         (
-                'testRole',
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'У вас нет достаточных прав для доступа к этому ресурсу.'
-                }
+            "testRole",
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+            },
         ),
     ],
     ids=[
@@ -53,24 +53,23 @@ from app.security.auth import auth_service
 )
 @pytest.mark.asyncio
 async def test_read_users_me(
-        app_client,
-        test_engine,
-        create_user,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user_data = {
         "email": "test1@gmail.com",
         "password": "testPassword1",
         "first_name": "Денис",
-        "last_name": "Ягунов"
+        "last_name": "Ягунов",
     }
-    user = await create_user(
-        role=current_user_role, **user_data
+    user = await create_user(role=current_user_role, **user_data)
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
     )
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
 
     response = app_client.get(
         "/api/v1/users/me/",
@@ -82,7 +81,8 @@ async def test_read_users_me(
     if response.status_code in (HTTPStatus.OK,):
         expected_created_at = expected_result.pop("created_at")
         result_created_at = datetime.datetime.fromisoformat(
-            result.pop("created_at"))
+            result.pop("created_at")
+        )
 
         assert expected_created_at.date() == result_created_at.date()
 
@@ -93,162 +93,190 @@ async def test_read_users_me(
     "query_data, current_user_role, expected_status, expected_result",
     [
         (
-                {
-                    "email": "test1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.CREATED,
-                {
-                    'created_at': datetime.datetime.now(),
-                    'email': 'test1@gmail.com',
-                    'first_name': 'Денис',
-                    'id': 2,
-                    'is_active': True,
-                    'last_name': 'Ягунов',
-                    'role': 'USER'
-                }
+            {
+                "email": "test1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.CREATED,
+            {
+                "created_at": datetime.datetime.now(),
+                "email": "test1@gmail.com",
+                "first_name": "Денис",
+                "id": 2,
+                "is_active": True,
+                "last_name": "Ягунов",
+                "role": "USER",
+            },
         ),
         (
-                {
-                    "email": "русскиебуквы@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'русскиебуквы@gmail.com',
-                                'loc': ['body', 'email'],
-                                'msg': 'Value error, Некорректный формат почты. Почта должна '
-                                       'состоять только из латинских букв и содержать как минимум '
-                                       '1 символ . и @',
-                                'type': 'value_error'}]
-                }
+            {
+                "email": "русскиебуквы@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "русскиебуквы@gmail.com",
+                        "loc": ["body", "email"],
+                        "msg": "Value error, Некорректный формат почты. Почта должна "
+                        "состоять только из латинских букв и содержать как минимум "
+                        "1 символ . и @",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                {
-                    "email": "test!!!1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'test!!!1@gmail.com',
-                                'loc': ['body', 'email'],
-                                'msg': 'Value error, Некорректный формат почты. Почта должна '
-                                       'состоять только из латинских букв и содержать как минимум '
-                                       '1 символ . и @',
-                                'type': 'value_error'}]
-                }
+            {
+                "email": "test!!!1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "test!!!1@gmail.com",
+                        "loc": ["body", "email"],
+                        "msg": "Value error, Некорректный формат почты. Почта должна "
+                        "состоять только из латинских букв и содержать как минимум "
+                        "1 символ . и @",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                {
-                    "email": "test@gmail.com",
-                    "password": "testPa1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'min_length': 8},
-                                'input': 'testPa1',
-                                'loc': ['body', 'password'],
-                                'msg': 'String should have at least 8 characters',
-                                'type': 'string_too_short'}]
-                }
+            {
+                "email": "test@gmail.com",
+                "password": "testPa1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"min_length": 8},
+                        "input": "testPa1",
+                        "loc": ["body", "password"],
+                        "msg": "String should have at least 8 characters",
+                        "type": "string_too_short",
+                    }
+                ]
+            },
         ),
         (
-                {
-                    "email": "test@gmail.com",
-                    "password": "testPassword",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'testPassword',
-                                'loc': ['body', 'password'],
-                                'msg': 'Value error, Пароль должен содержать не менее 8 символов, '
-                                       'включая одну заглавную букву и одну цифру.',
-                                'type': 'value_error'}]
-                }
+            {
+                "email": "test@gmail.com",
+                "password": "testPassword",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "testPassword",
+                        "loc": ["body", "password"],
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "включая одну заглавную букву и одну цифру.",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                {
-                    "email": "test@gmail.com",
-                    "password": "testpassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'testpassword1',
-                                'loc': ['body', 'password'],
-                                'msg': 'Value error, Пароль должен содержать не менее 8 символов, '
-                                       'включая одну заглавную букву и одну цифру.',
-                                'type': 'value_error'}]
-                }
+            {
+                "email": "test@gmail.com",
+                "password": "testpassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "testpassword1",
+                        "loc": ["body", "password"],
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "включая одну заглавную букву и одну цифру.",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                {
-                    "email": "test@gmail.com",
-                    "password": "ТестовыйПароль1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'ТестовыйПароль1',
-                                'loc': ['body', 'password'],
-                                'msg': 'Value error, Пароль должен содержать не менее 8 символов, '
-                                       'включая одну заглавную букву и одну цифру.',
-                                'type': 'value_error'}]
-                }
+            {
+                "email": "test@gmail.com",
+                "password": "ТестовыйПароль1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "ТестовыйПароль1",
+                        "loc": ["body", "password"],
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "включая одну заглавную букву и одну цифру.",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                {
-                    "email": "test1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'У вас нет достаточных прав для доступа к этому ресурсу.'
-                }
+            {
+                "email": "test1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+            },
         ),
         (
-                {
-                    "email": "t@y.ru",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'min_length': 7},
-                                'input': 't@y.ru',
-                                'loc': ['body', 'email'],
-                                'msg': 'String should have at least 7 characters',
-                                'type': 'string_too_short'}]
-                }
+            {
+                "email": "t@y.ru",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"min_length": 7},
+                        "input": "t@y.ru",
+                        "loc": ["body", "email"],
+                        "msg": "String should have at least 7 characters",
+                        "type": "string_too_short",
+                    }
+                ]
+            },
         ),
     ],
     ids=[
@@ -265,17 +293,18 @@ async def test_read_users_me(
 )
 @pytest.mark.asyncio
 async def test_create_user(
-        app_client,
-        test_engine,
-        create_user,
-        query_data,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    query_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user = await create_user(role=current_user_role)
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     response = app_client.post(
         "/api/v1/users/",
@@ -288,7 +317,8 @@ async def test_create_user(
     if response.status_code in (HTTPStatus.CREATED,):
         expected_created_at = expected_result.pop("created_at")
         result_created_at = datetime.datetime.fromisoformat(
-            result.pop("created_at"))
+            result.pop("created_at")
+        )
 
         assert expected_created_at.date() == result_created_at.date()
 
@@ -299,17 +329,17 @@ async def test_create_user(
     "query_data, current_user_role, expected_status, expected_result",
     [
         (
-                {
-                    "email": "test1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.BAD_REQUEST,
-                {
-                    'detail': "Пользователь с email='test1@gmail.com' уже был создан."
-                }
+            {
+                "email": "test1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.BAD_REQUEST,
+            {
+                "detail": "Пользователь с email='test1@gmail.com' уже был создан."
+            },
         ),
     ],
     ids=[
@@ -318,19 +348,20 @@ async def test_create_user(
 )
 @pytest.mark.asyncio
 async def test_create_user_with_same_email(
-        app_client,
-        test_engine,
-        create_user,
-        query_data,
-        current_user_role,
-        expected_status,
-        expected_result,
+    app_client,
+    test_engine,
+    create_user,
+    query_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     await create_user(**query_data)
 
     user = await create_user(role=current_user_role)
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     response = app_client.post(
         "/api/v1/users/",
@@ -346,42 +377,40 @@ async def test_create_user_with_same_email(
     "query_data, current_user_role, expected_status, expected_result",
     [
         (
-                1,
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'У вас нет достаточных прав для доступа к этому ресурсу.'
-                }
+            1,
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+            },
         ),
         (
-                1,
-                UserRoles.ADMIN.value,
-                HTTPStatus.OK,
-                {
-                    'created_at': datetime.datetime.now(),
-                    'email': 'test1@gmail.com',
-                    'first_name': 'Денис',
-                    'id': 1,
-                    'is_active': True,
-                    'last_name': 'Ягунов',
-                    'role': 'USER'
-                }
+            1,
+            UserRoles.ADMIN.value,
+            HTTPStatus.OK,
+            {
+                "created_at": datetime.datetime.now(),
+                "email": "test1@gmail.com",
+                "first_name": "Денис",
+                "id": 1,
+                "is_active": True,
+                "last_name": "Ягунов",
+                "role": "USER",
+            },
         ),
         (
-                2,
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'У вас нет достаточных прав для доступа к этому ресурсу.'
-                }
+            2,
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+            },
         ),
         (
-                3,
-                UserRoles.ADMIN.value,
-                HTTPStatus.NOT_FOUND,
-                {
-                    'detail': 'Пользователь c id=3 не найден.'
-                }
+            3,
+            UserRoles.ADMIN.value,
+            HTTPStatus.NOT_FOUND,
+            {"detail": "Пользователь c id=3 не найден."},
         ),
     ],
     ids=[
@@ -393,24 +422,25 @@ async def test_create_user_with_same_email(
 )
 @pytest.mark.asyncio
 async def test_get_user(
-        app_client,
-        test_engine,
-        create_user,
-        query_data,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    query_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user_data = {
         "email": "test1@gmail.com",
         "password": "testPassword1",
         "first_name": "Денис",
-        "last_name": "Ягунов"
+        "last_name": "Ягунов",
     }
     await create_user(**user_data)
     user = await create_user(role=current_user_role)
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     response = app_client.get(
         f"/api/v1/users/{query_data}",
@@ -422,7 +452,8 @@ async def test_get_user(
     if response.status_code in (HTTPStatus.OK,):
         expected_created_at = expected_result.pop("created_at")
         result_created_at = datetime.datetime.fromisoformat(
-            result.pop("created_at"))
+            result.pop("created_at")
+        )
 
         assert expected_created_at.date() == result_created_at.date()
 
@@ -433,35 +464,31 @@ async def test_get_user(
     "query_data, current_user_role, expected_status, expected_result",
     [
         (
-                3,
-                UserRoles.ADMIN.value,
-                HTTPStatus.NOT_FOUND,
-                {
-                    'detail': 'Пользователь c id=3 не найден.'
-                }
+            3,
+            UserRoles.ADMIN.value,
+            HTTPStatus.NOT_FOUND,
+            {"detail": "Пользователь c id=3 не найден."},
         ),
         (
-                2,
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'Запись пользователя c id=2 принадлежит другому пользователю и не может быть удалена.'
-                }
+            2,
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "Запись пользователя c id=2 принадлежит другому пользователю и не может быть удалена."
+            },
         ),
         (
-                1,
-                UserRoles.USER.value,
-                HTTPStatus.NO_CONTENT,
-                None,
+            1,
+            UserRoles.USER.value,
+            HTTPStatus.NO_CONTENT,
+            None,
         ),
-
         (
-                2,
-                UserRoles.ADMIN.value,
-                HTTPStatus.NO_CONTENT,
-                None,
+            2,
+            UserRoles.ADMIN.value,
+            HTTPStatus.NO_CONTENT,
+            None,
         ),
-
     ],
     ids=[
         "failed delete user with admin role: user not found",
@@ -472,19 +499,20 @@ async def test_get_user(
 )
 @pytest.mark.asyncio
 async def test_delete_user(
-        app_client,
-        test_engine,
-        create_user,
-        query_data,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    query_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user = await create_user(role=current_user_role)
     await create_user()
 
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     response = app_client.delete(
         f"/api/v1/users/{query_data}",
@@ -502,204 +530,231 @@ async def test_delete_user(
     "query_data, update_data, current_user_role, expected_status, expected_result",
     [
         (
-                1,
-                {
-                    "email": "test1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.OK,
-                {
-                    'created_at': datetime.datetime.now(),
-                    'email': 'test1@gmail.com',
-                    'first_name': 'Денис',
-                    'id': 1,
-                    'is_active': True,
-                    'last_name': 'Ягунов',
-                    'role': 'USER'
-                }
+            1,
+            {
+                "email": "test1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.OK,
+            {
+                "created_at": datetime.datetime.now(),
+                "email": "test1@gmail.com",
+                "first_name": "Денис",
+                "id": 1,
+                "is_active": True,
+                "last_name": "Ягунов",
+                "role": "USER",
+            },
         ),
         (
-                2,
-                {
-                    "email": "test1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.OK,
-                {
-                    'created_at': datetime.datetime.now(),
-                    'email': 'test1@gmail.com',
-                    'first_name': 'Денис',
-                    'id': 2,
-                    'is_active': True,
-                    'last_name': 'Ягунов',
-                    'role': 'USER'
-                }
+            2,
+            {
+                "email": "test1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.OK,
+            {
+                "created_at": datetime.datetime.now(),
+                "email": "test1@gmail.com",
+                "first_name": "Денис",
+                "id": 2,
+                "is_active": True,
+                "last_name": "Ягунов",
+                "role": "USER",
+            },
         ),
         (
-                1,
-                {
-                    "email": "русскиебуквы@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'русскиебуквы@gmail.com',
-                                'loc': ['body', 'email'],
-                                'msg': 'Value error, Некорректный формат почты. Почта должна '
-                                       'состоять только из латинских букв и содержать как минимум '
-                                       '1 символ . и @',
-                                'type': 'value_error'}]
-                }
+            1,
+            {
+                "email": "русскиебуквы@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "русскиебуквы@gmail.com",
+                        "loc": ["body", "email"],
+                        "msg": "Value error, Некорректный формат почты. Почта должна "
+                        "состоять только из латинских букв и содержать как минимум "
+                        "1 символ . и @",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                1,
-                {
-                    "email": "test!!!1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'test!!!1@gmail.com',
-                                'loc': ['body', 'email'],
-                                'msg': 'Value error, Некорректный формат почты. Почта должна '
-                                       'состоять только из латинских букв и содержать как минимум '
-                                       '1 символ . и @',
-                                'type': 'value_error'}]
-                }
+            1,
+            {
+                "email": "test!!!1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "test!!!1@gmail.com",
+                        "loc": ["body", "email"],
+                        "msg": "Value error, Некорректный формат почты. Почта должна "
+                        "состоять только из латинских букв и содержать как минимум "
+                        "1 символ . и @",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                1,
-                {
-                    "email": "test@gmail.com",
-                    "password": "testPa1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'min_length': 8},
-                                'input': 'testPa1',
-                                'loc': ['body', 'password'],
-                                'msg': 'String should have at least 8 characters',
-                                'type': 'string_too_short'}]
-                }
+            1,
+            {
+                "email": "test@gmail.com",
+                "password": "testPa1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"min_length": 8},
+                        "input": "testPa1",
+                        "loc": ["body", "password"],
+                        "msg": "String should have at least 8 characters",
+                        "type": "string_too_short",
+                    }
+                ]
+            },
         ),
         (
-                1,
-                {
-                    "email": "test@gmail.com",
-                    "password": "testPassword",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'testPassword',
-                                'loc': ['body', 'password'],
-                                'msg': 'Value error, Пароль должен содержать не менее 8 символов, '
-                                       'включая одну заглавную букву и одну цифру.',
-                                'type': 'value_error'}]
-                }
+            1,
+            {
+                "email": "test@gmail.com",
+                "password": "testPassword",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "testPassword",
+                        "loc": ["body", "password"],
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "включая одну заглавную букву и одну цифру.",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                1,
-                {
-                    "email": "test@gmail.com",
-                    "password": "testpassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'testpassword1',
-                                'loc': ['body', 'password'],
-                                'msg': 'Value error, Пароль должен содержать не менее 8 символов, '
-                                       'включая одну заглавную букву и одну цифру.',
-                                'type': 'value_error'}]
-                }
+            1,
+            {
+                "email": "test@gmail.com",
+                "password": "testpassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "testpassword1",
+                        "loc": ["body", "password"],
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "включая одну заглавную букву и одну цифру.",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                1,
-                {
-                    "email": "test@gmail.com",
-                    "password": "ТестовыйПароль1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'error': {}},
-                                'input': 'ТестовыйПароль1',
-                                'loc': ['body', 'password'],
-                                'msg': 'Value error, Пароль должен содержать не менее 8 символов, '
-                                       'включая одну заглавную букву и одну цифру.',
-                                'type': 'value_error'}]
-                }
+            1,
+            {
+                "email": "test@gmail.com",
+                "password": "ТестовыйПароль1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": {}},
+                        "input": "ТестовыйПароль1",
+                        "loc": ["body", "password"],
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "включая одну заглавную букву и одну цифру.",
+                        "type": "value_error",
+                    }
+                ]
+            },
         ),
         (
-                2,
-                {
-                    "email": "test1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'Запись пользователя c id=2 принадлежит другому пользователю и не может быть обновлена.'}
+            2,
+            {
+                "email": "test1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "Запись пользователя c id=2 принадлежит другому пользователю и не может быть обновлена."
+            },
         ),
         (
-                1,
-                {
-                    "email": "t@y.ru",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'min_length': 7},
-                                'input': 't@y.ru',
-                                'loc': ['body', 'email'],
-                                'msg': 'String should have at least 7 characters',
-                                'type': 'string_too_short'}]
-                }
+            1,
+            {
+                "email": "t@y.ru",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {"min_length": 7},
+                        "input": "t@y.ru",
+                        "loc": ["body", "email"],
+                        "msg": "String should have at least 7 characters",
+                        "type": "string_too_short",
+                    }
+                ]
+            },
         ),
         (
-                3,
-                {
-                    "email": "test1@gmail.com",
-                    "password": "testPassword1",
-                    "first_name": "Денис",
-                    "last_name": "Ягунов"
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.NOT_FOUND,
-                {
-                    'detail': 'Пользователь c id=3 не найден.'
-                }
+            3,
+            {
+                "email": "test1@gmail.com",
+                "password": "testPassword1",
+                "first_name": "Денис",
+                "last_name": "Ягунов",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.NOT_FOUND,
+            {"detail": "Пользователь c id=3 не найден."},
         ),
     ],
     ids=[
@@ -718,19 +773,20 @@ async def test_delete_user(
 )
 @pytest.mark.asyncio
 async def test_update_user(
-        app_client,
-        test_engine,
-        create_user,
-        query_data,
-        update_data,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    query_data,
+    update_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user = await create_user(role=current_user_role)
     await create_user()
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     response = app_client.patch(
         f"/api/v1/users/{query_data}",
@@ -743,7 +799,8 @@ async def test_update_user(
     if response.status_code in (HTTPStatus.OK,):
         expected_created_at = expected_result.pop("created_at")
         result_created_at = datetime.datetime.fromisoformat(
-            result.pop("created_at"))
+            result.pop("created_at")
+        )
 
         assert expected_created_at.date() == result_created_at.date()
 
@@ -754,102 +811,112 @@ async def test_update_user(
     "skip, limit, sort_by, ascending, filter, current_user_role, expected_status, expected_count, expected_last_user_id, expected_result",
     [
         (
-                None,
-                None,
-                None,
-                None,
-                None,
-                UserRoles.ADMIN.value,
-                HTTPStatus.OK,
-                6,
-                6,
-                {},
+            None,
+            None,
+            None,
+            None,
+            None,
+            UserRoles.ADMIN.value,
+            HTTPStatus.OK,
+            6,
+            6,
+            {},
         ),
         (
-                0,
-                5,
-                'id',
-                True,
-                UserFilter(),
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                None,
-                None,
-                {
-                    'detail': 'У вас нет достаточных прав для доступа к этому ресурсу.'
-                },
+            0,
+            5,
+            "id",
+            True,
+            UserFilter(),
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            None,
+            None,
+            {
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+            },
         ),
         (
-                -1,
-                5,
-                'id',
-                True,
-                UserFilter(),
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                None,
-                None,
-                {
-                    'detail': [{'ctx': {'ge': 0},
-                                'input': '-1',
-                                'loc': ['query', 'skip'],
-                                'msg': 'Input should be greater than or equal to 0',
-                                'type': 'greater_than_equal'}]
-                },
+            -1,
+            5,
+            "id",
+            True,
+            UserFilter(),
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            None,
+            None,
+            {
+                "detail": [
+                    {
+                        "ctx": {"ge": 0},
+                        "input": "-1",
+                        "loc": ["query", "skip"],
+                        "msg": "Input should be greater than or equal to 0",
+                        "type": "greater_than_equal",
+                    }
+                ]
+            },
         ),
         (
-                0,
-                101,
-                'id',
-                True,
-                UserFilter(),
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                None,
-                None,
-                {
-                    'detail': [{'ctx': {'lt': 101},
-                                'input': '101',
-                                'loc': ['query', 'limit'],
-                                'msg': 'Input should be less than 101',
-                                'type': 'less_than'}]
-                }
+            0,
+            101,
+            "id",
+            True,
+            UserFilter(),
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            None,
+            None,
+            {
+                "detail": [
+                    {
+                        "ctx": {"lt": 101},
+                        "input": "101",
+                        "loc": ["query", "limit"],
+                        "msg": "Input should be less than 101",
+                        "type": "less_than",
+                    }
+                ]
+            },
         ),
         (
-                0,
-                0,
-                'id',
-                True,
-                UserFilter(),
-                UserRoles.ADMIN.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                None,
-                None,
-                {
-                    'detail': [{'ctx': {'gt': 0},
-                                'input': '0',
-                                'loc': ['query', 'limit'],
-                                'msg': 'Input should be greater than 0',
-                                'type': 'greater_than'}]
-                }
+            0,
+            0,
+            "id",
+            True,
+            UserFilter(),
+            UserRoles.ADMIN.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            None,
+            None,
+            {
+                "detail": [
+                    {
+                        "ctx": {"gt": 0},
+                        "input": "0",
+                        "loc": ["query", "limit"],
+                        "msg": "Input should be greater than 0",
+                        "type": "greater_than",
+                    }
+                ]
+            },
         ),
         (
-                0,
-                5,
-                'some_field',
-                True,
-                UserFilter(),
-                UserRoles.ADMIN.value,
-                HTTPStatus.BAD_REQUEST,
-                None,
-                None,
-                {
-                    'detail': "У пользователя нет поля 'some_field'."
-                }
+            0,
+            5,
+            "some_field",
+            True,
+            UserFilter(),
+            UserRoles.ADMIN.value,
+            HTTPStatus.BAD_REQUEST,
+            None,
+            None,
+            {"detail": "У пользователя нет поля 'some_field'."},
         ),
     ],
     ids=[
-        'succeed get users with default parameters',
+        "succeed get users with default parameters",
         "failed get users: user does not have permissions",
         "failed get users: bad skip value lt 0",
         "failed get users: bad limit value gt 100",
@@ -859,30 +926,31 @@ async def test_update_user(
 )
 @pytest.mark.asyncio
 async def test_get_users(
-        db_session,
-        app_client,
-        create_multiple_users,
-        create_user,
-        skip,
-        limit,
-        sort_by,
-        ascending,
-        filter,
-        current_user_role,
-        expected_status,
-        expected_count,
-        expected_last_user_id,
-        expected_result,
+    db_session,
+    app_client,
+    create_multiple_users,
+    create_user,
+    skip,
+    limit,
+    sort_by,
+    ascending,
+    filter,
+    current_user_role,
+    expected_status,
+    expected_count,
+    expected_last_user_id,
+    expected_result,
 ):
     user = await create_user(role=current_user_role)
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     async with db_session as session:
         user1 = User(
-            email='test1@example.com',
-            last_name='Mask1',
-            first_name='Elon1',
+            email="test1@example.com",
+            last_name="Mask1",
+            first_name="Elon1",
             created_at=datetime.datetime.now(),
         )
 
@@ -894,7 +962,7 @@ async def test_get_users(
     if any([skip, limit, sort_by, ascending, filter]):
         url = f"/api/v1/users/?skip={skip}&limit={limit}&sort_by={sort_by}&ascending={ascending}"
     else:
-        url = '/api/v1/users/'
+        url = "/api/v1/users/"
 
     response = app_client.get(url)
     result = response.json()
@@ -909,4 +977,4 @@ async def test_get_users(
 
     if expected_last_user_id is not None:
         last_user = result[-1]
-        assert last_user.get('id') == expected_last_user_id
+        assert last_user.get("id") == expected_last_user_id

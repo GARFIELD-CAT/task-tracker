@@ -1,3 +1,6 @@
+from typing import Union
+
+from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -10,9 +13,9 @@ DB_URL = settings.pg_auth
 class MainService:
     _engine = None
 
-    def __init__(self, db_url: str = DB_URL):
+    def __init__(self, db_url: Union[str, URL] = DB_URL):
         self._db_url = db_url
-        self._engine = create_async_engine(self._db_url, echo=True)
+        self._engine = create_async_engine(self._db_url)
 
     async def init_db(self):
         async with self._engine.begin() as conn:

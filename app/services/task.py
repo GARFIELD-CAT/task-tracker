@@ -3,9 +3,9 @@ from http import HTTPStatus
 from typing import List, Optional
 
 from fastapi import HTTPException
-from sqlalchemy import delete, select, func, desc
+from sqlalchemy import delete, desc, func, select
 
-from app.db.models import Task, User, UserRoles
+from app.db.models import Task, TaskStatuses, User, UserRoles
 from app.schemes.task import CreateTask, TaskFilter
 from app.security.errors import AuthorizationError
 from app.services.main_service import MainService
@@ -26,9 +26,7 @@ class TaskService(MainService):
             db_session.add(task)
             await db_session.commit()
 
-            logger.info(
-                f"Задача c параметрами: {task=} успешно создана."
-            )
+            logger.info(f"Задача c параметрами: {task=} успешно создана.")
 
             return task
 
@@ -36,19 +34,22 @@ class TaskService(MainService):
         session = self._get_async_session()
 
         async with session() as db_session:
-            result = await db_session.execute(
-                select(Task).filter_by(id=id)
-            )
+            result = await db_session.execute(select(Task).filter_by(id=id))
 
             task = result.scalars().first()
 
             if task:
-                if current_user.role == UserRoles.USER and task.assignee_id == current_user.id:
+                if (
+                    current_user.role == UserRoles.USER
+                    and task.assignee_id == current_user.id
+                ):
                     return task
                 elif current_user.role == UserRoles.ADMIN:
                     return task
                 else:
-                    raise AuthorizationError(f"Задача c {id=} принадлежит другому пользователю и не может быть просмотрена.")
+                    raise AuthorizationError(
+                        f"Задача c {id=} принадлежит другому пользователю и не может быть просмотрена."  # noqa: E501
+                    )
 
             return None
 
@@ -56,9 +57,7 @@ class TaskService(MainService):
         session = self._get_async_session()
 
         async with session() as db_session:
-            result = await db_session.execute(
-                select(Task).filter_by(id=id)
-            )
+            result = await db_session.execute(select(Task).filter_by(id=id))
 
             task = result.scalars().first()
 
@@ -67,7 +66,8 @@ class TaskService(MainService):
                 raise ValueError(f"Задача c {id=} не найдена.")
 
             if (
-                current_user.role == UserRoles.USER and task.assignee_id == current_user.id
+                current_user.role == UserRoles.USER
+                and task.assignee_id == current_user.id
             ) or (current_user.role == UserRoles.ADMIN):
                 result = await db_session.execute(
                     delete(Task).filter_by(id=id)
@@ -82,18 +82,14 @@ class TaskService(MainService):
                     raise ValueError(f"Задача c {id=} не найдена.")
             else:
                 raise AuthorizationError(
-                    f"Задача c {id=} принадлежит другому пользователю и не может быть удалена."
+                    f"Задача c {id=} принадлежит другому пользователю и не может быть удалена."  # noqa: E501
                 )
 
-    async def update_task(
-        self, id: int, current_user: User, **kwargs
-    ) -> Task:
+    async def update_task(self, id: int, current_user: User, **kwargs) -> Task:
         session = self._get_async_session()
 
         async with session() as db_session:
-            result = await db_session.execute(
-                select(Task).filter_by(id=id)
-            )
+            result = await db_session.execute(select(Task).filter_by(id=id))
             task = result.scalars().one_or_none()
 
             if task is None:
@@ -101,10 +97,11 @@ class TaskService(MainService):
                 raise ValueError(f"Задача c {id=} не найдена.")
 
             if (
-                current_user.role == UserRoles.USER and task.assignee_id == current_user.id
+                current_user.role == UserRoles.USER
+                and task.assignee_id == current_user.id
             ) or (current_user.role == UserRoles.ADMIN):
                 for key, value in kwargs.items():
-                    if key == 'status':
+                    if key == "status":
                         if value is None:
                             continue
 
@@ -113,9 +110,10 @@ class TaskService(MainService):
                         ):
                             raise HTTPException(
                                 status_code=HTTPStatus.BAD_REQUEST,
-                                detail=f"Задача не может сменить статус с {task.status} на {value}. "
-                                f"Доступные варианты: {TASK_STATUSES_MAPPING[task.status] 
-                                if TASK_STATUSES_MAPPING[task.status] else "Нет доступных статусов"}"
+                                detail=(
+                                    f"Задача не может сменить статус с {task.status} на {value}. "  # noqa: E501
+                                    f"Доступные варианты: {TASK_STATUSES_MAPPING[task.status] if TASK_STATUSES_MAPPING[task.status] else 'Нет доступных статусов'}"  # noqa: E501
+                                ),
                             )
 
                     if value:
@@ -128,10 +126,18 @@ class TaskService(MainService):
                 return task
             else:
                 raise AuthorizationError(
-                    f"Задача c {id=} принадлежит другому пользователю и не может быть обновлена."
+                    f"Задача c {id=} принадлежит другому пользователю и не может быть обновлена."  # noqa: E501
                 )
 
-    async def get_tasks(self, skip: int, limit: int, sort_by: str, ascending: bool, filter: TaskFilter, current_user: User) -> List[Task]:
+    async def get_tasks(
+        self,
+        skip: int,
+        limit: int,
+        sort_by: str,
+        ascending: bool,
+        filter: TaskFilter,
+        current_user: User,
+    ) -> List[Task]:
         session = self._get_async_session()
         query = select(Task)
 
@@ -142,7 +148,9 @@ class TaskService(MainService):
             query = query.where(Task.status == filter.status)
 
         if filter.created_at:
-            query = query.where(func.date(Task.created_at) == filter.created_at)
+            query = query.where(
+                func.date(Task.created_at) == filter.created_at
+            )
 
         if filter.closed_at:
             query = query.where(func.date(Task.closed_at) == filter.closed_at)
@@ -169,7 +177,9 @@ class TaskService(MainService):
 
             return result.scalars().all()
 
-    def is_valid_new_task_status(self, current_status: str, new_status: str) -> bool:
+    def is_valid_new_task_status(
+        self, current_status: TaskStatuses, new_status: str
+    ) -> bool:
         return new_status in TASK_STATUSES_MAPPING[current_status]
 
 

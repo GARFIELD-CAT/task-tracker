@@ -2,10 +2,10 @@ import logging
 from http import HTTPStatus
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.db.models import User, UserRoles
-from app.schemes.task import ResponseTask, CreateTask, UpdateTask, TaskFilter
+from app.schemes.task import CreateTask, ResponseTask, TaskFilter, UpdateTask
 from app.security.auth import auth_service
 from app.services.task import task_service
 
@@ -22,7 +22,7 @@ TASKS_TAG = "Задачи"
 )
 async def create_task(
     input: CreateTask,
-    current_user: User = Depends(auth_service.get_current_user)
+    current_user: User = Depends(auth_service.get_current_user),
 ):
     await auth_service.check_required_role(
         current_user, [UserRoles.ADMIN, UserRoles.USER]
@@ -43,8 +43,7 @@ async def create_task(
     tags=[TASKS_TAG],
 )
 async def get_task(
-    id: int,
-    current_user: User = Depends(auth_service.get_current_user)
+    id: int, current_user: User = Depends(auth_service.get_current_user)
 ):
     await auth_service.check_required_role(
         current_user, [UserRoles.ADMIN, UserRoles.USER]
@@ -67,8 +66,7 @@ async def get_task(
     tags=[TASKS_TAG],
 )
 async def delete_task(
-    id: int,
-    current_user: User = Depends(auth_service.get_current_user)
+    id: int, current_user: User = Depends(auth_service.get_current_user)
 ):
     await auth_service.check_required_role(
         current_user, [UserRoles.ADMIN, UserRoles.USER]
@@ -89,7 +87,7 @@ async def delete_task(
 async def update_task(
     id: int,
     input: UpdateTask,
-    current_user: User = Depends(auth_service.get_current_user)
+    current_user: User = Depends(auth_service.get_current_user),
 ):
     await auth_service.check_required_role(
         current_user, [UserRoles.ADMIN, UserRoles.USER]
@@ -124,6 +122,8 @@ async def get_tasks(
     )
 
     try:
-        return await task_service.get_tasks(skip, limit, sort_by, ascending, filter, current_user)
+        return await task_service.get_tasks(
+            skip, limit, sort_by, ascending, filter, current_user
+        )
     except AttributeError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))

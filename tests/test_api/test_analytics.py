@@ -7,15 +7,11 @@ import pytest
     "expected_status, tasks_count, expected_result",
     [
         (
-                HTTPStatus.OK,
-                None,
-                '<h1>Нет данных для отображения. Заполните базу данных.</h1>'
+            HTTPStatus.OK,
+            None,
+            "<h1>Нет данных для отображения. Заполните базу данных.</h1>",
         ),
-        (
-                HTTPStatus.OK,
-                10,
-                "<title>Отчет по задачам</title"
-        ),
+        (HTTPStatus.OK, 10, "<title>Отчет по задачам</title"),
     ],
     ids=[
         "succeed get report: empty database",
@@ -24,13 +20,13 @@ import pytest
 )
 @pytest.mark.asyncio
 async def test_reports(
-        app_client,
-        test_engine,
-        create_user,
-        create_multiple_task,
-        expected_status,
-        tasks_count,
-        expected_result,
+    app_client,
+    test_engine,
+    create_user,
+    create_multiple_task,
+    expected_status,
+    tasks_count,
+    expected_result,
 ):
     user = await create_user()
 

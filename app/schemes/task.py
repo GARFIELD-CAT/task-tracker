@@ -1,15 +1,22 @@
-from datetime import datetime, date
-from typing import Optional, Literal
+from datetime import date, datetime
+from typing import Literal, Optional
 
 from fastapi import Query
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 from app.db.models import TaskStatuses
 
+
 class CreateTask(BaseModel):
-    title: str = Field(description="Название задачи", max_length=255, min_length=1)
-    description: Optional[str] = Field(description="Описание задачи", default=None)
-    status: Literal[TaskStatuses.TO_DO.value] = Field(description="Статус задачи", default=TaskStatuses.TO_DO)
+    title: str = Field(
+        description="Название задачи", max_length=255, min_length=1
+    )
+    description: Optional[str] = Field(
+        description="Описание задачи", default=None
+    )
+    status: Literal[TaskStatuses.TO_DO] = Field(
+        description="Статус задачи", default=TaskStatuses.TO_DO
+    )
 
 
 class ResponseTask(BaseModel):
@@ -19,19 +26,29 @@ class ResponseTask(BaseModel):
     assignee_id: int = Field(description="Исполнитель задачи")
     status: str = Field(description="Статус задачи")
     created_at: datetime = Field(description="Дата создания задачи")
-    updated_at: datetime = Field(description="Дата последнего обновления задачи")
+    updated_at: datetime = Field(
+        description="Дата последнего обновления задачи"
+    )
     closed_at: Optional[datetime] = Field(description="Дата закрытия задачи")
-    started_work_at: Optional[datetime] = Field(description="Дата взятия в работу задачи")
+    started_work_at: Optional[datetime] = Field(
+        description="Дата взятия в работу задачи"
+    )
 
 
 class UpdateTask(BaseModel):
-    title: str = Field(description="Название задачи", default=None)
-    description: str = Field(description="Описание задачи", default=None)
-    assignee_id: int = Field(description="Исполнитель задачи", default=None)
-    status: Literal[
-        TaskStatuses.IN_PROGRESS.value,
-        TaskStatuses.DONE.value,
-        TaskStatuses.CANCELLED.value
+    title: Optional[str] = Field(description="Название задачи", default=None)
+    description: Optional[str] = Field(
+        description="Описание задачи", default=None
+    )  # noqa: E501
+    assignee_id: Optional[int] = Field(
+        description="Исполнитель задачи", default=None
+    )  # noqa: E501
+    status: Optional[
+        Literal[
+            TaskStatuses.IN_PROGRESS,
+            TaskStatuses.DONE,
+            TaskStatuses.CANCELLED,
+        ]
     ] = Field(description="Статус задачи", default=None)
 
 

@@ -2,15 +2,16 @@ from datetime import datetime as dt
 from enum import StrEnum
 
 from sqlalchemy import (
+    Boolean,
     Column,
     DateTime,
     ForeignKey,
     Integer,
     String,
     Text,
-    Boolean, event
+    event,
 )
-from sqlalchemy.orm import relationship, DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, relationship
 
 
 class UserRoles(StrEnum):
@@ -19,10 +20,10 @@ class UserRoles(StrEnum):
 
 
 class TaskStatuses(StrEnum):
-    TO_DO = "To Do" # Задача создана
-    IN_PROGRESS = "In Progress" # Задача в работе
-    DONE = "Done" # Задача выполнена
-    CANCELLED = "Cancelled" # Задача отменена
+    TO_DO = "To Do"  # Задача создана
+    IN_PROGRESS = "In Progress"  # Задача в работе
+    DONE = "Done"  # Задача выполнена
+    CANCELLED = "Cancelled"  # Задача отменена
 
 
 class Base(DeclarativeBase):
@@ -41,7 +42,12 @@ class User(Base):
     created_at = Column(DateTime(), default=dt.now())
     role = Column(String(60), default=UserRoles.USER.value)
 
-    tasks = relationship("Task", back_populates="assignee",  lazy="subquery", cascade="all, delete-orphan")
+    tasks = relationship(
+        "Task",
+        back_populates="assignee",
+        lazy="subquery",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self):
         return (
@@ -58,7 +64,8 @@ class Task(Base):
     title = Column(String(255), index=True)
     description = Column(Text, nullable=True, default="")
     assignee_id = Column(
-        Integer, ForeignKey("users.id", ondelete="SET NULL"),
+        Integer,
+        ForeignKey("users.id", ondelete="SET NULL"),
     )
     status = Column(String(20), default=TaskStatuses.TO_DO.value, index=True)
     created_at = Column(DateTime, default=dt.now(), index=True)
@@ -66,7 +73,7 @@ class Task(Base):
     closed_at = Column(DateTime, nullable=True, default=None, index=True)
     started_work_at = Column(DateTime, nullable=True, default=None, index=True)
 
-    assignee = relationship("User", back_populates="tasks",  lazy="subquery")
+    assignee = relationship("User", back_populates="tasks", lazy="subquery")
 
     def __repr__(self):
         return (
@@ -76,11 +83,14 @@ class Task(Base):
 
 
 # Обработчик события для обновления поля updated_at
-@event.listens_for(Task, 'before_update')
+@event.listens_for(Task, "before_update")
 def receive_before_update(mapper, connection, target):
     now = dt.now()
 
-    if target.status in (TaskStatuses.DONE.value, TaskStatuses.CANCELLED.value):
+    if target.status in (
+        TaskStatuses.DONE.value,
+        TaskStatuses.CANCELLED.value,
+    ):
         target.closed_at = now
     elif target.status == TaskStatuses.IN_PROGRESS.value:
         target.started_work_at = now

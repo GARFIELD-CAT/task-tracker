@@ -2,7 +2,7 @@ import logging
 from http import HTTPStatus
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.db.models import User, UserRoles
 from app.schemes.user import CreateUser, ResponseUser, UpdateUser, UserFilter
@@ -20,12 +20,15 @@ USERS_TAG = "Пользователи"
     response_model=ResponseUser,
     tags=[USERS_TAG],
 )
-async def read_users_me(current_user: User = Depends(auth_service.get_current_user)):
+async def read_users_me(
+    current_user: User = Depends(auth_service.get_current_user),
+):
     await auth_service.check_required_role(
         current_user, [UserRoles.ADMIN, UserRoles.USER]
     )
 
     return current_user
+
 
 @user_router.post(
     "/",
@@ -33,10 +36,11 @@ async def read_users_me(current_user: User = Depends(auth_service.get_current_us
     response_model=ResponseUser,
     tags=[USERS_TAG],
 )
-async def create_user(input: CreateUser, current_user: User = Depends(auth_service.get_current_user)):
-    await auth_service.check_required_role(
-        current_user, [UserRoles.ADMIN]
-    )
+async def create_user(
+    input: CreateUser,
+    current_user: User = Depends(auth_service.get_current_user),
+):
+    await auth_service.check_required_role(current_user, [UserRoles.ADMIN])
 
     try:
         status = await user_service.create_user(input=input)
@@ -52,10 +56,10 @@ async def create_user(input: CreateUser, current_user: User = Depends(auth_servi
     response_model=ResponseUser,
     tags=[USERS_TAG],
 )
-async def get_user(id: int, current_user: User = Depends(auth_service.get_current_user)):
-    await auth_service.check_required_role(
-        current_user, [UserRoles.ADMIN]
-    )
+async def get_user(
+    id: int, current_user: User = Depends(auth_service.get_current_user)
+):
+    await auth_service.check_required_role(current_user, [UserRoles.ADMIN])
 
     task = await user_service.get_user_by_id(id)
 
@@ -73,7 +77,9 @@ async def get_user(id: int, current_user: User = Depends(auth_service.get_curren
     status_code=HTTPStatus.NO_CONTENT,
     tags=[USERS_TAG],
 )
-async def delete_user(id: int, current_user: User = Depends(auth_service.get_current_user)):
+async def delete_user(
+    id: int, current_user: User = Depends(auth_service.get_current_user)
+):
     await auth_service.check_required_role(
         current_user, [UserRoles.ADMIN, UserRoles.USER]
     )
@@ -90,7 +96,11 @@ async def delete_user(id: int, current_user: User = Depends(auth_service.get_cur
     response_model=ResponseUser,
     tags=[USERS_TAG],
 )
-async def update_user(id: int, input: UpdateUser, current_user: User = Depends(auth_service.get_current_user)):
+async def update_user(
+    id: int,
+    input: UpdateUser,
+    current_user: User = Depends(auth_service.get_current_user),
+):
     await auth_service.check_required_role(
         current_user, [UserRoles.ADMIN, UserRoles.USER]
     )
@@ -117,13 +127,13 @@ async def get_users(
     sort_by: str = Query("id"),
     ascending: bool = Query(True),
     filter: UserFilter = Depends(),
-    current_user: User = Depends(auth_service.get_current_user)
+    current_user: User = Depends(auth_service.get_current_user),
 ):
-    await auth_service.check_required_role(
-        current_user, [UserRoles.ADMIN]
-    )
+    await auth_service.check_required_role(current_user, [UserRoles.ADMIN])
 
     try:
-        return await user_service.get_users(skip, limit, sort_by, ascending, filter)
+        return await user_service.get_users(
+            skip, limit, sort_by, ascending, filter
+        )
     except AttributeError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))

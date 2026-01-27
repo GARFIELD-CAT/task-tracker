@@ -3,24 +3,24 @@ import os
 import pytest_asyncio
 from dotenv import load_dotenv
 from faker import Faker
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
 
-from app.db.models import Base, User, Task
+from app.db.models import Base, Task, User
 from app.main import app
 
 load_dotenv()
 
 
-@pytest_asyncio.fixture(scope='session')
+@pytest_asyncio.fixture(scope="session")
 async def faker():
     """Faker с русской локалью"""
 
-    return Faker(locale='ru_RU')
+    return Faker(locale="ru_RU")
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture(scope="function")
 async def test_engine():
     """Подключение к тестовой БД"""
 
@@ -38,7 +38,7 @@ async def test_engine():
     await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture(scope="function")
 async def db_session(test_engine):
     """Сессия с откатом транзакций"""
     session_maker = sessionmaker(
@@ -65,13 +65,14 @@ async def user_data_generator(faker):
 
     async def _generate_user_data(**overrides):
         base_data = {
-            'email': faker.unique.email(),
-            'password': faker.password(),
-            'first_name': faker.first_name(),
-            'last_name': faker.last_name(),
+            "email": faker.unique.email(),
+            "password": faker.password(),
+            "first_name": faker.first_name(),
+            "last_name": faker.last_name(),
         }
 
         return {**base_data, **overrides}
+
     return _generate_user_data
 
 
@@ -88,6 +89,7 @@ async def create_user(db_session, user_data_generator):
             await session.commit()
 
         return user
+
     return _create_user
 
 
@@ -108,6 +110,7 @@ async def create_multiple_users(db_session, user_data_generator):
             await session.commit()
 
         return users
+
     return _create_multiple_users
 
 
@@ -117,17 +120,18 @@ async def task_data_generator(faker):
 
     async def _generate_task_data(**overrides):
         base_data = {
-            'title': faker.sentence(nb_words=5),
-            'description': faker.text(max_nb_chars=300),
-            'assignee_id': None,
-            'status': 'To Do',
+            "title": faker.sentence(nb_words=5),
+            "description": faker.text(max_nb_chars=300),
+            "assignee_id": None,
+            "status": "To Do",
         }
 
         return {**base_data, **overrides}
+
     return _generate_task_data
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture(scope="function")
 async def create_task(db_session, task_data_generator):
     """Фабрика задач с Faker"""
 
@@ -140,10 +144,11 @@ async def create_task(db_session, task_data_generator):
             await session.commit()
 
         return task
+
     return _create_task
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture(scope="function")
 async def create_multiple_task(db_session, task_data_generator):
     """Фабрика для создания нескольких задач для пользователя"""
 
@@ -161,4 +166,5 @@ async def create_multiple_task(db_session, task_data_generator):
             await session.commit()
 
         return tasks
+
     return _create_multiple_posts

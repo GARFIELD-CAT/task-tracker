@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import pytest
 
-from app.db.models import UserRoles, Task
+from app.db.models import Task, UserRoles
 from app.schemes.task import TaskFilter
 from app.security.auth import auth_service
 
@@ -12,23 +12,23 @@ from app.security.auth import auth_service
     "query_data, current_user_role, expected_status, expected_result",
     [
         (
-                {
-                    "title": "Название задачи",
-                    "description": "Описание задачи",
-                },
-                UserRoles.USER.value,
-                HTTPStatus.CREATED,
-                {
-                    'assignee_id': 1,
-                    'closed_at': None,
-                    'description': 'Описание задачи',
-                    'id': 1,
-                    'started_work_at': None,
-                    'status': 'To Do',
-                    'title': 'Название задачи',
-                    'updated_at': datetime.datetime.now(),
-                    'created_at': datetime.datetime.now(),
-                }
+            {
+                "title": "Название задачи",
+                "description": "Описание задачи",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.CREATED,
+            {
+                "assignee_id": 1,
+                "closed_at": None,
+                "description": "Описание задачи",
+                "id": 1,
+                "started_work_at": None,
+                "status": "To Do",
+                "title": "Название задачи",
+                "updated_at": datetime.datetime.now(),
+                "created_at": datetime.datetime.now(),
+            },
         ),
     ],
     ids=[
@@ -37,17 +37,18 @@ from app.security.auth import auth_service
 )
 @pytest.mark.asyncio
 async def test_create_task(
-        app_client,
-        test_engine,
-        create_user,
-        query_data,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    query_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user = await create_user(role=current_user_role)
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     response = app_client.post(
         "/api/v1/tasks/",
@@ -77,52 +78,50 @@ async def test_create_task(
     "query_data, current_user_role, expected_status, expected_result",
     [
         (
-                1,
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'Задача c id=1 принадлежит другому пользователю и не может быть просмотрена.'
-                }
+            1,
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "Задача c id=1 принадлежит другому пользователю и не может быть просмотрена."
+            },
         ),
         (
-                1,
-                UserRoles.ADMIN.value,
-                HTTPStatus.OK,
-                {
-                    'assignee_id': 1,
-                    'closed_at': None,
-                    'description': 'Описание задачи',
-                    'id': 1,
-                    'started_work_at': None,
-                    'status': 'To Do',
-                    'title': 'Название задачи',
-                    'updated_at': datetime.datetime.now(),
-                    'created_at': datetime.datetime.now(),
-                }
+            1,
+            UserRoles.ADMIN.value,
+            HTTPStatus.OK,
+            {
+                "assignee_id": 1,
+                "closed_at": None,
+                "description": "Описание задачи",
+                "id": 1,
+                "started_work_at": None,
+                "status": "To Do",
+                "title": "Название задачи",
+                "updated_at": datetime.datetime.now(),
+                "created_at": datetime.datetime.now(),
+            },
         ),
         (
-                2,
-                UserRoles.USER.value,
-                HTTPStatus.OK,
-                {
-                    'assignee_id': 2,
-                    'closed_at': None,
-                    'description': 'Описание задачи 1',
-                    'id': 2,
-                    'started_work_at': None,
-                    'status': 'To Do',
-                    'title': 'Название задачи 1',
-                    'updated_at': datetime.datetime.now(),
-                    'created_at': datetime.datetime.now(),
-                }
+            2,
+            UserRoles.USER.value,
+            HTTPStatus.OK,
+            {
+                "assignee_id": 2,
+                "closed_at": None,
+                "description": "Описание задачи 1",
+                "id": 2,
+                "started_work_at": None,
+                "status": "To Do",
+                "title": "Название задачи 1",
+                "updated_at": datetime.datetime.now(),
+                "created_at": datetime.datetime.now(),
+            },
         ),
         (
-                3,
-                UserRoles.ADMIN.value,
-                HTTPStatus.NOT_FOUND,
-                {
-                    'detail': 'Задача c id=3 не найдена.'
-                }
+            3,
+            UserRoles.ADMIN.value,
+            HTTPStatus.NOT_FOUND,
+            {"detail": "Задача c id=3 не найдена."},
         ),
     ],
     ids=[
@@ -134,29 +133,30 @@ async def test_create_task(
 )
 @pytest.mark.asyncio
 async def test_get_task(
-        app_client,
-        test_engine,
-        create_user,
-        create_task,
-        query_data,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    create_task,
+    query_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user1 = await create_user()
     await create_task(
-        title='Название задачи',
-        description='Описание задачи',
-        assignee_id=user1.id
+        title="Название задачи",
+        description="Описание задачи",
+        assignee_id=user1.id,
     )
     user = await create_user(role=current_user_role)
     await create_task(
-        title='Название задачи 1',
-        description='Описание задачи 1',
-        assignee_id=user.id
+        title="Название задачи 1",
+        description="Описание задачи 1",
+        assignee_id=user.id,
     )
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     response = app_client.get(
         f"/api/v1/tasks/{query_data}",
@@ -185,32 +185,30 @@ async def test_get_task(
     "query_data, current_user_role, expected_status, expected_result",
     [
         (
-                3,
-                UserRoles.USER.value,
-                HTTPStatus.NOT_FOUND,
-                {
-                    'detail': 'Задача c id=3 не найдена.'
-                }
+            3,
+            UserRoles.USER.value,
+            HTTPStatus.NOT_FOUND,
+            {"detail": "Задача c id=3 не найдена."},
         ),
         (
-                1,
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'Задача c id=1 принадлежит другому пользователю и не может быть удалена.'
-                }
+            1,
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "Задача c id=1 принадлежит другому пользователю и не может быть удалена."
+            },
         ),
         (
-                2,
-                UserRoles.USER.value,
-                HTTPStatus.NO_CONTENT,
-                None,
+            2,
+            UserRoles.USER.value,
+            HTTPStatus.NO_CONTENT,
+            None,
         ),
         (
-                1,
-                UserRoles.ADMIN.value,
-                HTTPStatus.NO_CONTENT,
-                None,
+            1,
+            UserRoles.ADMIN.value,
+            HTTPStatus.NO_CONTENT,
+            None,
         ),
     ],
     ids=[
@@ -222,29 +220,30 @@ async def test_get_task(
 )
 @pytest.mark.asyncio
 async def test_delete_task(
-        app_client,
-        test_engine,
-        create_user,
-        create_task,
-        query_data,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    create_task,
+    query_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user1 = await create_user()
     await create_task(
-        title='Название задачи',
-        description='Описание задачи',
-        assignee_id=user1.id
+        title="Название задачи",
+        description="Описание задачи",
+        assignee_id=user1.id,
     )
     user = await create_user(role=current_user_role)
     await create_task(
-        title='Название задачи 1',
-        description='Описание задачи 1',
-        assignee_id=user.id
+        title="Название задачи 1",
+        description="Описание задачи 1",
+        assignee_id=user.id,
     )
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     response = app_client.delete(
         f"/api/v1/tasks/{query_data}",
@@ -261,129 +260,126 @@ async def test_delete_task(
     "query_data, update_data, current_user_role, expected_status, expected_result",
     [
         (
-                1,
-                {
-                    "title": "Название задачи",
-                    "description": "Описание задачи",
-                    "status": "To Do"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {
-                        'expected': "'In Progress', 'Done' or 'Cancelled'"},
-                        'input': 'To Do',
-                        'loc': ['body', 'status'],
-                        'msg': "Input should be 'In Progress', 'Done' or 'Cancelled'",
-                        'type': 'literal_error'}]
-                }
+            1,
+            {
+                "title": "Название задачи",
+                "description": "Описание задачи",
+                "status": "To Do",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            {
+                "detail": [
+                    {
+                        "ctx": {
+                            "expected": "'In Progress', 'Done' or 'Cancelled'"
+                        },
+                        "input": "To Do",
+                        "loc": ["body", "status"],
+                        "msg": "Input should be 'In Progress', 'Done' or 'Cancelled'",
+                        "type": "literal_error",
+                    }
+                ]
+            },
         ),
         (
-                1,
-                {
-                    "title": "Название задачи",
-                    "description": "Описание задачи",
-                    "status": "In Progress"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.OK,
-                {
-                    'assignee_id': 1,
-                    'closed_at': None,
-                    'created_at': datetime.datetime.now(),
-                    'description': 'Описание задачи',
-                    'id': 1,
-                    'started_work_at': datetime.datetime.now(),
-                    'status': 'In Progress',
-                    'title': 'Название задачи',
-                    'updated_at': datetime.datetime.now(),
-                }
+            1,
+            {
+                "title": "Название задачи",
+                "description": "Описание задачи",
+                "status": "In Progress",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.OK,
+            {
+                "assignee_id": 1,
+                "closed_at": None,
+                "created_at": datetime.datetime.now(),
+                "description": "Описание задачи",
+                "id": 1,
+                "started_work_at": datetime.datetime.now(),
+                "status": "In Progress",
+                "title": "Название задачи",
+                "updated_at": datetime.datetime.now(),
+            },
         ),
         (
-                1,
-                {
-                    "title": "Название задачи",
-                    "status": "In Progress"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.OK,
-                {
-                    'assignee_id': 1,
-                    'closed_at': None,
-                    'created_at': datetime.datetime.now(),
-                    'description': 'Описание задачи',
-                    'id': 1,
-                    'started_work_at': datetime.datetime.now(),
-                    'status': 'In Progress',
-                    'title': 'Название задачи',
-                    'updated_at': datetime.datetime.now(),
-                }
+            1,
+            {"title": "Название задачи", "status": "In Progress"},
+            UserRoles.USER.value,
+            HTTPStatus.OK,
+            {
+                "assignee_id": 1,
+                "closed_at": None,
+                "created_at": datetime.datetime.now(),
+                "description": "Описание задачи",
+                "id": 1,
+                "started_work_at": datetime.datetime.now(),
+                "status": "In Progress",
+                "title": "Название задачи",
+                "updated_at": datetime.datetime.now(),
+            },
         ),
         (
-                1,
-                {
-                    "description": "Описание задачи",
-                },
-                UserRoles.USER.value,
-                HTTPStatus.OK,
-                {
-                    'assignee_id': 1,
-                    'closed_at': None,
-                    'created_at': datetime.datetime.now(),
-                    'description': 'Описание задачи',
-                    'id': 1,
-                    'started_work_at': None,
-                    'status': 'To Do',
-                    'title': 'Название задачи',
-                    'updated_at': datetime.datetime.now(),
-
-                }
+            1,
+            {
+                "description": "Описание задачи",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.OK,
+            {
+                "assignee_id": 1,
+                "closed_at": None,
+                "created_at": datetime.datetime.now(),
+                "description": "Описание задачи",
+                "id": 1,
+                "started_work_at": None,
+                "status": "To Do",
+                "title": "Название задачи",
+                "updated_at": datetime.datetime.now(),
+            },
         ),
         (
-                2,
-                {
-                    "title": "",
-                    "description": "Описание задачи",
-                },
-                UserRoles.USER.value,
-                HTTPStatus.FORBIDDEN,
-                {
-                    'detail': 'Задача c id=2 принадлежит другому пользователю и не может быть обновлена.'
-                }
+            2,
+            {
+                "title": "",
+                "description": "Описание задачи",
+            },
+            UserRoles.USER.value,
+            HTTPStatus.FORBIDDEN,
+            {
+                "detail": "Задача c id=2 принадлежит другому пользователю и не может быть обновлена."
+            },
         ),
         (
-                2,
-                {
-                    "title": "Название задачи",
-                    "description": "Описание задачи",
-                },
-                UserRoles.ADMIN.value,
-                HTTPStatus.OK,
-                {
-                    'assignee_id': 2,
-                    'closed_at': None,
-                    'created_at': datetime.datetime.now(),
-                    'description': 'Описание задачи',
-                    'id': 2,
-                    'started_work_at': None,
-                    'status': 'To Do',
-                    'title': 'Название задачи',
-                    'updated_at': datetime.datetime.now(),
-
-                }
+            2,
+            {
+                "title": "Название задачи",
+                "description": "Описание задачи",
+            },
+            UserRoles.ADMIN.value,
+            HTTPStatus.OK,
+            {
+                "assignee_id": 2,
+                "closed_at": None,
+                "created_at": datetime.datetime.now(),
+                "description": "Описание задачи",
+                "id": 2,
+                "started_work_at": None,
+                "status": "To Do",
+                "title": "Название задачи",
+                "updated_at": datetime.datetime.now(),
+            },
         ),
         (
-                1,
-                {
-                    'status': 'Done'
-                },
-                UserRoles.USER.value,
-                HTTPStatus.BAD_REQUEST,
-                {
-                    'detail': "Задача не может сменить статус с To Do на Done. Доступные варианты: ('In Progress', 'Cancelled')"
-                }
+            1,
+            {"status": "Done"},
+            UserRoles.USER.value,
+            HTTPStatus.BAD_REQUEST,
+            {
+                "detail": "Задача не может сменить статус с To Do на Done. Доступные варианты: ('In Progress', 'Cancelled')"
+            },
         ),
-
     ],
     ids=[
         "failed update task: bad status",
@@ -397,28 +393,27 @@ async def test_delete_task(
 )
 @pytest.mark.asyncio
 async def test_update_task(
-        app_client,
-        test_engine,
-        create_user,
-        create_task,
-        query_data,
-        update_data,
-        current_user_role,
-        expected_status,
-        expected_result
+    app_client,
+    test_engine,
+    create_user,
+    create_task,
+    query_data,
+    update_data,
+    current_user_role,
+    expected_status,
+    expected_result,
 ):
     user = await create_user(role=current_user_role)
     await create_task(
         title="Название задачи",
         description="Описание задачи",
-        assignee_id=user.id
+        assignee_id=user.id,
     )
     user1 = await create_user()
-    await create_task(
-        assignee_id=user1.id
+    await create_task(assignee_id=user1.id)
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
     )
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
 
     response = app_client.patch(
         f"/api/v1/tasks/{query_data}",
@@ -443,7 +438,10 @@ async def test_update_task(
             result_started_work_at = datetime.datetime.fromisoformat(
                 result.pop("started_work_at")
             )
-            assert expected_started_work_at.date() == result_started_work_at.date()
+            assert (
+                expected_started_work_at.date()
+                == result_started_work_at.date()
+            )
 
         assert expected_created_at.date() == result_created_at.date()
         assert expected_updated_at.date() == result_updated_at.date()
@@ -451,101 +449,110 @@ async def test_update_task(
     assert result == expected_result
 
 
-
 @pytest.mark.parametrize(
     "skip, limit, sort_by, ascending, filter, current_user_role, expected_status, expected_count, expected_last_user_id, expected_result",
     [
         (
-                None,
-                None,
-                None,
-                None,
-                None,
-                UserRoles.USER.value,
-                HTTPStatus.OK,
-                5,
-                7,
-                {},
+            None,
+            None,
+            None,
+            None,
+            None,
+            UserRoles.USER.value,
+            HTTPStatus.OK,
+            5,
+            7,
+            {},
         ),
         (
-                None,
-                None,
-                None,
-                None,
-                None,
-                UserRoles.ADMIN.value,
-                HTTPStatus.OK,
-                7,
-                7,
-                {},
+            None,
+            None,
+            None,
+            None,
+            None,
+            UserRoles.ADMIN.value,
+            HTTPStatus.OK,
+            7,
+            7,
+            {},
         ),
         (
-                -1,
-                5,
-                'id',
-                True,
-                TaskFilter(),
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                None,
-                None,
-                {
-                    'detail': [{'ctx': {'ge': 0},
-                                'input': '-1',
-                                'loc': ['query', 'skip'],
-                                'msg': 'Input should be greater than or equal to 0',
-                                'type': 'greater_than_equal'}]
-                },
+            -1,
+            5,
+            "id",
+            True,
+            TaskFilter(),
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            None,
+            None,
+            {
+                "detail": [
+                    {
+                        "ctx": {"ge": 0},
+                        "input": "-1",
+                        "loc": ["query", "skip"],
+                        "msg": "Input should be greater than or equal to 0",
+                        "type": "greater_than_equal",
+                    }
+                ]
+            },
         ),
         (
-                0,
-                101,
-                'id',
-                True,
-                TaskFilter(),
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                None,
-                None,
-                {
-                    'detail': [{'ctx': {'lt': 101},
-                                'input': '101',
-                                'loc': ['query', 'limit'],
-                                'msg': 'Input should be less than 101',
-                                'type': 'less_than'}]
-                }
+            0,
+            101,
+            "id",
+            True,
+            TaskFilter(),
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            None,
+            None,
+            {
+                "detail": [
+                    {
+                        "ctx": {"lt": 101},
+                        "input": "101",
+                        "loc": ["query", "limit"],
+                        "msg": "Input should be less than 101",
+                        "type": "less_than",
+                    }
+                ]
+            },
         ),
         (
-                0,
-                0,
-                'id',
-                True,
-                TaskFilter(),
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                None,
-                None,
-                {
-                    'detail': [{'ctx': {'gt': 0},
-                                'input': '0',
-                                'loc': ['query', 'limit'],
-                                'msg': 'Input should be greater than 0',
-                                'type': 'greater_than'}]
-                }
+            0,
+            0,
+            "id",
+            True,
+            TaskFilter(),
+            UserRoles.USER.value,
+            HTTPStatus.UNPROCESSABLE_ENTITY,
+            None,
+            None,
+            {
+                "detail": [
+                    {
+                        "ctx": {"gt": 0},
+                        "input": "0",
+                        "loc": ["query", "limit"],
+                        "msg": "Input should be greater than 0",
+                        "type": "greater_than",
+                    }
+                ]
+            },
         ),
         (
-                0,
-                5,
-                'some_field',
-                True,
-                TaskFilter(),
-                UserRoles.USER.value,
-                HTTPStatus.BAD_REQUEST,
-                None,
-                None,
-                {
-                    'detail': "У задачи нет поля 'some_field'."
-                }
+            0,
+            5,
+            "some_field",
+            True,
+            TaskFilter(),
+            UserRoles.USER.value,
+            HTTPStatus.BAD_REQUEST,
+            None,
+            None,
+            {"detail": "У задачи нет поля 'some_field'."},
         ),
     ],
     ids=[
@@ -559,30 +566,31 @@ async def test_update_task(
 )
 @pytest.mark.asyncio
 async def test_get_tasks(
-        db_session,
-        app_client,
-        create_multiple_task,
-        create_user,
-        skip,
-        limit,
-        sort_by,
-        ascending,
-        filter,
-        current_user_role,
-        expected_status,
-        expected_count,
-        expected_last_user_id,
-        expected_result,
+    db_session,
+    app_client,
+    create_multiple_task,
+    create_user,
+    skip,
+    limit,
+    sort_by,
+    ascending,
+    filter,
+    current_user_role,
+    expected_status,
+    expected_count,
+    expected_last_user_id,
+    expected_result,
 ):
     user = await create_user(role=current_user_role)
-    app_client.app.dependency_overrides[
-        auth_service.get_current_user] = lambda: user
+    app_client.app.dependency_overrides[auth_service.get_current_user] = (
+        lambda: user
+    )
 
     async with db_session as session:
         task1 = Task(
             title="Название задачи",
             description="Описание задачи",
-            assignee_id=user.id
+            assignee_id=user.id,
         )
 
         session.add(task1)
@@ -595,7 +603,7 @@ async def test_get_tasks(
     if any([skip, limit, sort_by, ascending, filter]):
         url = f"/api/v1/tasks/?skip={skip}&limit={limit}&sort_by={sort_by}&ascending={ascending}"
     else:
-        url = '/api/v1/tasks/'
+        url = "/api/v1/tasks/"
 
     response = app_client.get(url)
     result = response.json()
@@ -610,4 +618,4 @@ async def test_get_tasks(
 
     if expected_last_user_id is not None:
         last_user = result[-1]
-        assert last_user.get('id') == expected_last_user_id
+        assert last_user.get("id") == expected_last_user_id

@@ -1,7 +1,7 @@
 import pandas as pd
 from sqlalchemy import func, select
 
-from app.db.models import User, Task, TaskStatuses
+from app.db.models import Task, TaskStatuses, User
 from app.services.main_service import MainService
 
 
@@ -14,8 +14,9 @@ class AnalyticsService(MainService):
                 User.first_name.label("first_name"),
                 User.last_name.label("last_name"),
                 Task.status.label("status"),
-                func.count(Task.id).label("count")
-            ).join(User, Task.assignee_id == User.id)
+                func.count(Task.id).label("count"),
+            )
+            .join(User, Task.assignee_id == User.id)
             .group_by(User.id, Task.status)
         )
 
@@ -28,14 +29,18 @@ class AnalyticsService(MainService):
             return None
 
         df_vis = pd.DataFrame(visualization_data)
-        df_vis['full_name'] = df_vis['first_name'] + ' ' + df_vis['last_name']
+        df_vis["full_name"] = df_vis["first_name"] + " " + df_vis["last_name"]
 
-        pivot_df = df_vis.pivot(index='full_name', columns='status',
-                                values='count').fillna(0)
+        pivot_df = df_vis.pivot(
+            index="full_name", columns="status", values="count"
+        ).fillna(0)
 
-        column_order = [TaskStatuses.TO_DO.value,
-                        TaskStatuses.IN_PROGRESS.value,
-                        TaskStatuses.DONE.value, TaskStatuses.CANCELLED.value]
+        column_order = [
+            TaskStatuses.TO_DO.value,
+            TaskStatuses.IN_PROGRESS.value,
+            TaskStatuses.DONE.value,
+            TaskStatuses.CANCELLED.value,
+        ]
         ordered_cols = [col for col in column_order if col in pivot_df.columns]
         pivot_df = pivot_df[ordered_cols]
 
@@ -46,23 +51,26 @@ class AnalyticsService(MainService):
             x=pivot_df.index,
             y=pivot_df.columns,
             title="Распределение задач по исполнителям и статусам",
-            labels={'full_name': 'Исполнитель', 'value': 'Количество задач',
-                    'status': 'Статус'},
+            labels={
+                "full_name": "Исполнитель",
+                "value": "Количество задач",
+                "status": "Статус",
+            },
             color_discrete_map={
-                TaskStatuses.TO_DO.value: '#FFD700',
-                TaskStatuses.IN_PROGRESS.value: '#1E90FF',
-                TaskStatuses.DONE.value: '#3CB371',
-                TaskStatuses.CANCELLED.value: '#DC143C'
-            }
+                TaskStatuses.TO_DO.value: "#FFD700",
+                TaskStatuses.IN_PROGRESS.value: "#1E90FF",
+                TaskStatuses.DONE.value: "#3CB371",
+                TaskStatuses.CANCELLED.value: "#DC143C",
+            },
         )
 
         fig.update_layout(
-            barmode='stack',
+            barmode="stack",
             xaxis_title="Исполнитель",
-            yaxis_title="Количество задач"
+            yaxis_title="Количество задач",
         )
 
-        graph_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
+        graph_html = fig.to_html(full_html=False, include_plotlyjs="cdn")
 
         html_template = f"""
             <!DOCTYPE html>
@@ -84,7 +92,7 @@ class AnalyticsService(MainService):
                 </div>
             </body>
             </html>
-        """
+        """  # noqa: E501
 
         return html_template
 
