@@ -1,6 +1,8 @@
 import logging
+from http import HTTPStatus
 from typing import List, Optional
 
+from fastapi import HTTPException
 from sqlalchemy import delete, select, func, desc
 
 from app.db.models import Task, User, UserRoles
@@ -60,6 +62,10 @@ class TaskService(MainService):
 
             task = result.scalars().first()
 
+            if task is None:
+                logger.error(f"Задача c {id=} не найдена.")
+                raise ValueError(f"Задача c {id=} не найдена.")
+
             if (
                 current_user.role == UserRoles.USER and task.assignee_id == current_user.id
             ) or (current_user.role == UserRoles.ADMIN):
@@ -99,11 +105,15 @@ class TaskService(MainService):
             ) or (current_user.role == UserRoles.ADMIN):
                 for key, value in kwargs.items():
                     if key == 'status':
+                        if value is None:
+                            continue
+
                         if not self.is_valid_new_task_status(
                             task.status, value
                         ):
-                            raise ValueError(
-                                f"Задача не может сменить статус с {task.status} на {value}. "
+                            raise HTTPException(
+                                status_code=HTTPStatus.BAD_REQUEST,
+                                detail=f"Задача не может сменить статус с {task.status} на {value}. "
                                 f"Доступные варианты: {TASK_STATUSES_MAPPING[task.status] 
                                 if TASK_STATUSES_MAPPING[task.status] else "Нет доступных статусов"}"
                             )
