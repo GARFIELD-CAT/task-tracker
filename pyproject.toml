@@ -32,11 +32,6 @@ package-mode = false
 [tool.black]
 line-length = 79
 
-[tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
-testpaths = ["tests"]
-pythonpath = ["."]
-
 [dependency-groups]
 dev = [
     "pytest (>=9.0.2,<10.0.0)",

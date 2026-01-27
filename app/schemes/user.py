@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class CreateUser(BaseModel):
-    email: str = Field(description="Почта пользователя", max_length=255, min_length=6)
+    email: str = Field(description="Почта пользователя", max_length=255, min_length=7)
     password: str = Field(description="Пароль пользователя", max_length=255, min_length=8)
     first_name: str = Field(description="Имя пользователя", max_length=255, min_length=1)
     last_name: str = Field(description="Фамилия пользователя", max_length=255, min_length=1)
@@ -19,7 +19,7 @@ class CreateUser(BaseModel):
     @field_validator('email', mode='after')
     def validate_email(cls, value):
         if not re.match(cls.EMAIL_REGEX, value):
-            raise ValueError('Некорректный формат почты. Почта должна содержать как минимум 1 символ . и @')
+            raise ValueError('Некорректный формат почты. Почта должна состоять только из латинских букв и содержать как минимум 1 символ . и @')
 
         return value
 
@@ -45,7 +45,7 @@ class ResponseUser(BaseModel):
 
 
 class UpdateUser(BaseModel):
-    email: str = Field(description="Почта пользователя", max_length=255, min_length=6, default=None)
+    email: str = Field(description="Почта пользователя", max_length=255, min_length=7, default=None)
     password: str = Field(description="Пароль пользователя", max_length=255, min_length=8, default=None)
     first_name: str = Field(description="Имя пользователя", max_length=255, min_length=1, default=None)
     last_name: str = Field(description="Фамилия пользователя", max_length=255, min_length=1, default=None)
@@ -58,7 +58,8 @@ class UpdateUser(BaseModel):
     def validate_email(cls, value):
         if not re.match(cls.EMAIL_REGEX, value):
             raise ValueError(
-                'Некорректный формат почты. Почта должна содержать как минимум 1 символ . и @')
+                'Некорректный формат почты. Почта должна состоять только из латинских букв и содержать как минимум 1 символ . и @'
+            )
 
         return value
 

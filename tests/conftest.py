@@ -1,19 +1,20 @@
 import os
 
-import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from faker import Faker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from starlette.testclient import TestClient
 
 from app.db.models import Base, User, Task
+from app.main import app
 
 load_dotenv()
 
 
-@pytest.fixture(scope='session')
-def faker():
+@pytest_asyncio.fixture(scope='session')
+async def faker():
     """Faker с русской локалью"""
 
     return Faker(locale='ru_RU')
@@ -52,11 +53,17 @@ async def db_session(test_engine):
     session.close()
 
 
-@pytest.fixture
-def user_data_generator(faker):
+@pytest_asyncio.fixture(scope="session")
+def app_client():
+    with TestClient(app) as client:
+        yield client
+
+
+@pytest_asyncio.fixture(scope="function")
+async def user_data_generator(faker):
     """Генератор тестовых пользователей"""
 
-    def _generate_user_data(**overrides):
+    async def _generate_user_data(**overrides):
         base_data = {
             'email': faker.unique.email(),
             'password': faker.password(),
@@ -68,13 +75,13 @@ def user_data_generator(faker):
     return _generate_user_data
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture(scope="function")
 async def create_user(db_session, user_data_generator):
     """Фабрика пользователей с Faker"""
 
     async def _create_user(**overrides):
         async with db_session as session:
-            user_data = user_data_generator(**overrides)
+            user_data = await user_data_generator(**overrides)
             user = User(**user_data)
 
             session.add(user)
@@ -84,7 +91,7 @@ async def create_user(db_session, user_data_generator):
     return _create_user
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture(scope="function")
 async def create_multiple_users(db_session, user_data_generator):
     """Фабрика для создания нескольких пользователей"""
 
@@ -93,7 +100,7 @@ async def create_multiple_users(db_session, user_data_generator):
 
         async with db_session as session:
             for _ in range(count):
-                user_data = user_data_generator()
+                user_data = await user_data_generator()
                 user = User(**user_data)
                 users.append(user)
 
@@ -104,11 +111,11 @@ async def create_multiple_users(db_session, user_data_generator):
     return _create_multiple_users
 
 
-@pytest.fixture
-def task_data_generator(faker):
+@pytest_asyncio.fixture(scope="function")
+async def task_data_generator(faker):
     """Генератор тестовых задач"""
 
-    def _generate_task_data(**overrides):
+    async def _generate_task_data(**overrides):
         base_data = {
             'title': faker.sentence(nb_words=5),
             'description': faker.text(max_nb_chars=300),
@@ -126,7 +133,7 @@ async def create_task(db_session, task_data_generator):
 
     async def _create_task(**overrides):
         async with db_session as session:
-            task_data = task_data_generator(**overrides)
+            task_data = await task_data_generator(**overrides)
             task = Task(**task_data)
 
             db_session.add(task)
@@ -145,7 +152,7 @@ async def create_multiple_task(db_session, task_data_generator):
 
         async with db_session as session:
             for _ in range(count):
-                task_data = task_data_generator(assignee_id=assignee_id)
+                task_data = await task_data_generator(assignee_id=assignee_id)
                 task = Task(**task_data)
                 db_session.add(task)
                 tasks.append(task)

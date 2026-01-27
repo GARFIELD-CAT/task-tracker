@@ -4,13 +4,13 @@ import logging
 import uvicorn
 from fastapi import FastAPI
 
-from api.v1.task import task_router
+from app.api.v1.task import task_router
 from app.api.v1.analytics import analytics_router
 from app.api.v1.auth import auth_router
 from app.api.v1.user import user_router
 
-from core.settings import settings
-from services.main_service import main_service
+from app.core.settings import settings
+from app.services.main_service import main_service
 
 logging.basicConfig(level=settings.logger_level)
 app = FastAPI(
