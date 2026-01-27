@@ -20,7 +20,9 @@ class AnalyticsService(MainService):
         )
 
         async with session() as db_session:
-            visualization_data = await db_session.execute(query)
+            result = await db_session.execute(query)
+
+        visualization_data = result.all()
 
         if not visualization_data:
             return None

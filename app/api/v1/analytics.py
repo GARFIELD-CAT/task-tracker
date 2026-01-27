@@ -13,7 +13,7 @@ ANALYTICS_TAG = "Аналитика"
 
 
 @analytics_router.get(
-    "/reports/",
+    "/reports",
     status_code=HTTPStatus.OK,
     response_class=HTMLResponse,
     tags=[ANALYTICS_TAG],

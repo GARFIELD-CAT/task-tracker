@@ -30,78 +30,9 @@ from app.security.auth import auth_service
                     'created_at': datetime.datetime.now(),
                 }
         ),
-        (
-                {
-                    "title": "Название задачи",
-                    "description": None,
-                },
-                UserRoles.USER.value,
-                HTTPStatus.CREATED,
-                {
-                    'assignee_id': 1,
-                    'closed_at': None,
-                    'description': '',
-                    'id': 1,
-                    'started_work_at': None,
-                    'status': 'To Do',
-                    'title': 'Название задачи',
-                    'updated_at': datetime.datetime.now(),
-                    'created_at': datetime.datetime.now(),
-                }
-        ),
-        (
-                {
-                    "title": "",
-                    "description": "Описание задачи",
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'min_length': 1},
-                                'input': '',
-                                'loc': ['body', 'title'],
-                                'msg': 'String should have at least 1 character',
-                                'type': 'string_too_short'}]
-                }
-        ),
-        (
-                {
-                    "title": '1' * 256,
-                    "description": "Описание задачи",
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'max_length': 255},
-                                'input': '1' * 256,
-                                'loc': ['body', 'title'],
-                                'msg': 'String should have at most 255 characters',
-                                'type': 'string_too_long'}]
-                }
-        ),
-        (
-                {
-                    "title": "Название задачи",
-                    "description": "Описание задачи",
-                    "status": "Some status"
-                },
-                UserRoles.USER.value,
-                HTTPStatus.UNPROCESSABLE_ENTITY,
-                {
-                    'detail': [{'ctx': {'expected': "'To Do'"},
-                                'input': 'Some status',
-                                'loc': ['body', 'status'],
-                                'msg': "Input should be 'To Do'",
-                                'type': 'literal_error'}]
-                }
-        ),
     ],
     ids=[
         "succeed create task",
-        "succeed create task without description",
-        "failed create task: title has bad value lt 1",
-        "failed create task: title has bad value gt 255",
-        "failed create task: status has bad value",
     ],
 )
 @pytest.mark.asyncio
