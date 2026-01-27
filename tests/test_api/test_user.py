@@ -299,6 +299,53 @@ async def test_create_user(
     "query_data, current_user_role, expected_status, expected_result",
     [
         (
+                {
+                    "email": "test1@gmail.com",
+                    "password": "testPassword1",
+                    "first_name": "Денис",
+                    "last_name": "Ягунов"
+                },
+                UserRoles.ADMIN.value,
+                HTTPStatus.BAD_REQUEST,
+                {
+                    'detail': "Пользователь с email='test1@gmail.com' уже был создан."
+                }
+        ),
+    ],
+    ids=[
+        "failed create user: email exists",
+    ],
+)
+@pytest.mark.asyncio
+async def test_create_user_with_same_email(
+        app_client,
+        test_engine,
+        create_user,
+        query_data,
+        current_user_role,
+        expected_status,
+        expected_result,
+):
+    await create_user(**query_data)
+
+    user = await create_user(role=current_user_role)
+    app_client.app.dependency_overrides[
+        auth_service.get_current_user] = lambda: user
+
+    response = app_client.post(
+        "/api/v1/users/",
+        json=query_data,
+    )
+    result = response.json()
+
+    assert response.status_code == expected_status
+    assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    "query_data, current_user_role, expected_status, expected_result",
+    [
+        (
                 1,
                 UserRoles.USER.value,
                 HTTPStatus.FORBIDDEN,

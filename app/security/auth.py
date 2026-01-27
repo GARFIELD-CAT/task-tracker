@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 
-from app.db.models import User, UserRoles
+from app.db.models import User
 from app.schemes.auth import TokenData
 from app.services.main_service import MainService
 
