@@ -41,8 +41,8 @@ from app.security.auth import auth_service
                         "ctx": {"error": {}},
                         "input": "русскиебуквы@gmail.com",
                         "loc": ["body", "email"],
-                        "msg": "Value error, Некорректный формат почты. Почта должна "
-                        "состоять только из латинских букв и содержать как минимум "
+                        "msg": "Value error, Некорректный формат почты. Почта должна "  # noqa: E501
+                        "состоять только из латинских букв и содержать как минимум "  # noqa: E501
                         "1 символ . и @",
                         "type": "value_error",
                     }
@@ -63,8 +63,8 @@ from app.security.auth import auth_service
                         "ctx": {"error": {}},
                         "input": "test!!!1@gmail.com",
                         "loc": ["body", "email"],
-                        "msg": "Value error, Некорректный формат почты. Почта должна "
-                        "состоять только из латинских букв и содержать как минимум "
+                        "msg": "Value error, Некорректный формат почты. Почта должна "  # noqa: E501
+                        "состоять только из латинских букв и содержать как минимум "  # noqa: E501
                         "1 символ . и @",
                         "type": "value_error",
                     }
@@ -105,7 +105,7 @@ from app.security.auth import auth_service
                         "ctx": {"error": {}},
                         "input": "testPassword",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -126,7 +126,7 @@ from app.security.auth import auth_service
                         "ctx": {"error": {}},
                         "input": "testpassword1",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -147,7 +147,7 @@ from app.security.auth import auth_service
                         "ctx": {"error": {}},
                         "input": "ТестовыйПароль1",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -221,7 +221,7 @@ async def test_register_user(
             },
             HTTPStatus.BAD_REQUEST,
             {
-                "detail": "Пользователь с email='test1@gmail.com' уже был создан."
+                "detail": "Пользователь с email='test1@gmail.com' уже был создан."  # noqa: E501
             },
         ),
     ],
@@ -276,7 +276,7 @@ async def test_register_user_with_same_email(
     ],
 )
 @pytest.mark.asyncio
-async def test_register_user_with_same_email(
+async def test_generate_token(
     app_client,
     test_engine,
     create_user,

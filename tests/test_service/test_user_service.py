@@ -129,7 +129,7 @@ async def test_delete_user_with_not_enough_user_permissions(
         await user_service.delete_user(user_id, user)
 
     assert (
-        "403: Запись пользователя c id=2 принадлежит другому пользователю и не может быть удалена."
+        "403: Запись пользователя c id=2 принадлежит другому пользователю и не может быть удалена."  # noqa: E501
         == str(excinfo.value)
     )
 
@@ -188,7 +188,7 @@ async def test_update_user_with_not_enough_user_permissions(
         )
 
     assert (
-        "403: Запись пользователя c id=2 принадлежит другому пользователю и не может быть обновлена."
+        "403: Запись пользователя c id=2 принадлежит другому пользователю и не может быть обновлена."  # noqa: E501
         == str(excinfo.value)
     )
 

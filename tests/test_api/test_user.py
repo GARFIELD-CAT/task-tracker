@@ -41,7 +41,7 @@ from app.security.auth import auth_service
             "testRole",
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."  # noqa: E501
             },
         ),
     ],
@@ -126,8 +126,8 @@ async def test_read_users_me(
                         "ctx": {"error": {}},
                         "input": "русскиебуквы@gmail.com",
                         "loc": ["body", "email"],
-                        "msg": "Value error, Некорректный формат почты. Почта должна "
-                        "состоять только из латинских букв и содержать как минимум "
+                        "msg": "Value error, Некорректный формат почты. Почта должна "  # noqa: E501
+                        "состоять только из латинских букв и содержать как минимум "  # noqa: E501
                         "1 символ . и @",
                         "type": "value_error",
                     }
@@ -149,8 +149,8 @@ async def test_read_users_me(
                         "ctx": {"error": {}},
                         "input": "test!!!1@gmail.com",
                         "loc": ["body", "email"],
-                        "msg": "Value error, Некорректный формат почты. Почта должна "
-                        "состоять только из латинских букв и содержать как минимум "
+                        "msg": "Value error, Некорректный формат почты. Почта должна "  # noqa: E501
+                        "состоять только из латинских букв и содержать как минимум "  # noqa: E501
                         "1 символ . и @",
                         "type": "value_error",
                     }
@@ -193,7 +193,7 @@ async def test_read_users_me(
                         "ctx": {"error": {}},
                         "input": "testPassword",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -215,7 +215,7 @@ async def test_read_users_me(
                         "ctx": {"error": {}},
                         "input": "testpassword1",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -237,7 +237,7 @@ async def test_read_users_me(
                         "ctx": {"error": {}},
                         "input": "ТестовыйПароль1",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -254,7 +254,7 @@ async def test_read_users_me(
             UserRoles.USER.value,
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."  # noqa: E501
             },
         ),
         (
@@ -338,7 +338,7 @@ async def test_create_user(
             UserRoles.ADMIN.value,
             HTTPStatus.BAD_REQUEST,
             {
-                "detail": "Пользователь с email='test1@gmail.com' уже был создан."
+                "detail": "Пользователь с email='test1@gmail.com' уже был создан."  # noqa: E501
             },
         ),
     ],
@@ -381,7 +381,7 @@ async def test_create_user_with_same_email(
             UserRoles.USER.value,
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."  # noqa: E501
             },
         ),
         (
@@ -403,7 +403,7 @@ async def test_create_user_with_same_email(
             UserRoles.USER.value,
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."  # noqa: E501
             },
         ),
         (
@@ -474,7 +474,7 @@ async def test_get_user(
             UserRoles.USER.value,
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "Запись пользователя c id=2 принадлежит другому пользователю и не может быть удалена."
+                "detail": "Запись пользователя c id=2 принадлежит другому пользователю и не может быть удалена."  # noqa: E501
             },
         ),
         (
@@ -527,7 +527,7 @@ async def test_delete_user(
 
 
 @pytest.mark.parametrize(
-    "query_data, update_data, current_user_role, expected_status, expected_result",
+    "query_data, update_data, current_user_role, expected_status, expected_result",  # noqa: E501
     [
         (
             1,
@@ -585,8 +585,8 @@ async def test_delete_user(
                         "ctx": {"error": {}},
                         "input": "русскиебуквы@gmail.com",
                         "loc": ["body", "email"],
-                        "msg": "Value error, Некорректный формат почты. Почта должна "
-                        "состоять только из латинских букв и содержать как минимум "
+                        "msg": "Value error, Некорректный формат почты. Почта должна "  # noqa: E501
+                        "состоять только из латинских букв и содержать как минимум "  # noqa: E501
                         "1 символ . и @",
                         "type": "value_error",
                     }
@@ -609,8 +609,8 @@ async def test_delete_user(
                         "ctx": {"error": {}},
                         "input": "test!!!1@gmail.com",
                         "loc": ["body", "email"],
-                        "msg": "Value error, Некорректный формат почты. Почта должна "
-                        "состоять только из латинских букв и содержать как минимум "
+                        "msg": "Value error, Некорректный формат почты. Почта должна "  # noqa: E501
+                        "состоять только из латинских букв и содержать как минимум "  # noqa: E501
                         "1 символ . и @",
                         "type": "value_error",
                     }
@@ -655,7 +655,7 @@ async def test_delete_user(
                         "ctx": {"error": {}},
                         "input": "testPassword",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -678,7 +678,7 @@ async def test_delete_user(
                         "ctx": {"error": {}},
                         "input": "testpassword1",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -701,7 +701,7 @@ async def test_delete_user(
                         "ctx": {"error": {}},
                         "input": "ТестовыйПароль1",
                         "loc": ["body", "password"],
-                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "
+                        "msg": "Value error, Пароль должен содержать не менее 8 символов, "  # noqa: E501
                         "включая одну заглавную букву и одну цифру.",
                         "type": "value_error",
                     }
@@ -719,7 +719,7 @@ async def test_delete_user(
             UserRoles.USER.value,
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "Запись пользователя c id=2 принадлежит другому пользователю и не может быть обновлена."
+                "detail": "Запись пользователя c id=2 принадлежит другому пользователю и не может быть обновлена."  # noqa: E501
             },
         ),
         (
@@ -808,7 +808,7 @@ async def test_update_user(
 
 
 @pytest.mark.parametrize(
-    "skip, limit, sort_by, ascending, filter, current_user_role, expected_status, expected_count, expected_last_user_id, expected_result",
+    "skip, limit, sort_by, ascending, filter, current_user_role, expected_status, expected_count, expected_last_user_id, expected_result",  # noqa: E501
     [
         (
             None,
@@ -833,7 +833,7 @@ async def test_update_user(
             None,
             None,
             {
-                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."
+                "detail": "У вас нет достаточных прав для доступа к этому ресурсу."  # noqa: E501
             },
         ),
         (
@@ -960,7 +960,7 @@ async def test_get_users(
     await create_multiple_users(4)
 
     if any([skip, limit, sort_by, ascending, filter]):
-        url = f"/api/v1/users/?skip={skip}&limit={limit}&sort_by={sort_by}&ascending={ascending}"
+        url = f"/api/v1/users/?skip={skip}&limit={limit}&sort_by={sort_by}&ascending={ascending}"  # noqa: E501
     else:
         url = "/api/v1/users/"
 

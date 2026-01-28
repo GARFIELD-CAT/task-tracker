@@ -91,7 +91,7 @@ async def test_delete_task_with_not_enough_user_permissions(
         await task_service.delete_task(task_id, user2)
 
     assert (
-        "403: Задача c id=1 принадлежит другому пользователю и не может быть удалена."
+        "403: Задача c id=1 принадлежит другому пользователю и не может быть удалена."  # noqa: E501
         == str(excinfo.value)
     )
 
@@ -154,7 +154,7 @@ async def test_update_task_with_not_enough_user_permissions(
         )
 
     assert (
-        "403: Задача c id=1 принадлежит другому пользователю и не может быть обновлена."
+        "403: Задача c id=1 принадлежит другому пользователю и не может быть обновлена."  # noqa: E501
         == str(excinfo.value)
     )
 

@@ -82,7 +82,7 @@ async def test_create_task(
             UserRoles.USER.value,
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "Задача c id=1 принадлежит другому пользователю и не может быть просмотрена."
+                "detail": "Задача c id=1 принадлежит другому пользователю и не может быть просмотрена."  # noqa: E501
             },
         ),
         (
@@ -195,7 +195,7 @@ async def test_get_task(
             UserRoles.USER.value,
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "Задача c id=1 принадлежит другому пользователю и не может быть удалена."
+                "detail": "Задача c id=1 принадлежит другому пользователю и не может быть удалена."  # noqa: E501
             },
         ),
         (
@@ -257,7 +257,7 @@ async def test_delete_task(
 
 
 @pytest.mark.parametrize(
-    "query_data, update_data, current_user_role, expected_status, expected_result",
+    "query_data, update_data, current_user_role, expected_status, expected_result",  # noqa: E501
     [
         (
             1,
@@ -272,11 +272,15 @@ async def test_delete_task(
                 "detail": [
                     {
                         "ctx": {
-                            "expected": "'In Progress', 'Done' or 'Cancelled'"
+                            "expected": "<TaskStatuses.IN_PROGRESS: 'In Progress'>, "  # noqa: E501
+                            "<TaskStatuses.DONE: 'Done'> or "
+                            "<TaskStatuses.CANCELLED: 'Cancelled'>"
                         },
                         "input": "To Do",
                         "loc": ["body", "status"],
-                        "msg": "Input should be 'In Progress', 'Done' or 'Cancelled'",
+                        "msg": "Input should be <TaskStatuses.IN_PROGRESS: 'In "  # noqa: E501
+                        "Progress'>, <TaskStatuses.DONE: 'Done'> or "
+                        "<TaskStatuses.CANCELLED: 'Cancelled'>",
                         "type": "literal_error",
                     }
                 ]
@@ -348,7 +352,7 @@ async def test_delete_task(
             UserRoles.USER.value,
             HTTPStatus.FORBIDDEN,
             {
-                "detail": "Задача c id=2 принадлежит другому пользователю и не может быть обновлена."
+                "detail": "Задача c id=2 принадлежит другому пользователю и не может быть обновлена."  # noqa: E501
             },
         ),
         (
@@ -377,7 +381,7 @@ async def test_delete_task(
             UserRoles.USER.value,
             HTTPStatus.BAD_REQUEST,
             {
-                "detail": "Задача не может сменить статус с To Do на Done. Доступные варианты: ('In Progress', 'Cancelled')"
+                "detail": "Задача не может сменить статус с To Do на Done. Доступные варианты: ('In Progress', 'Cancelled')"  # noqa: E501
             },
         ),
     ],
@@ -450,7 +454,7 @@ async def test_update_task(
 
 
 @pytest.mark.parametrize(
-    "skip, limit, sort_by, ascending, filter, current_user_role, expected_status, expected_count, expected_last_user_id, expected_result",
+    "skip, limit, sort_by, ascending, filter, current_user_role, expected_status, expected_count, expected_last_user_id, expected_result",  # noqa: E501
     [
         (
             None,
@@ -601,7 +605,7 @@ async def test_get_tasks(
     await create_multiple_task(4, assignee_id=user.id)
 
     if any([skip, limit, sort_by, ascending, filter]):
-        url = f"/api/v1/tasks/?skip={skip}&limit={limit}&sort_by={sort_by}&ascending={ascending}"
+        url = f"/api/v1/tasks/?skip={skip}&limit={limit}&sort_by={sort_by}&ascending={ascending}"  # noqa: E501
     else:
         url = "/api/v1/tasks/"
 
