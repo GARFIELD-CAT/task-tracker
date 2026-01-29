@@ -21,6 +21,7 @@ bcrypt = "==4.3.0"
 alembic = "^1.18.1"
 pandas = "^3.0.0"
 plotly = "^6.5.2"
+python-dotenv = "^1.2.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
