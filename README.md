@@ -19,13 +19,16 @@
    cd task-tracker
    ```
 
-3. **Разверните базу данных Postgres**:
+3. **Установите переменные окружения**:
+- У файла `.env_prod` удалите `_prod`
+
+4. **Разверните базу данных Postgres**:
    Убедитесь, что у вас установлен Docker и Docker Compose. Запустите команду:
    ```bash
    docker-compose up -d
    ```
 
-4. **Установите зависимости**:
+5. **Установите зависимости**:
 - Разверните venv окружение `py -3.12 -m venv venv`
 - Активировать venv окружение `.\venv\Scripts\activate.bat`
   - Если используется PowerShell `.\venv\Scripts\Activate.ps1`
@@ -33,13 +36,13 @@
 - Установить poetry `pip install poetry`
 - Установить зависимости `poetry install`
 
-5. **Заполните базу данными**:
+6. **Заполните базу данными**:
 - Выполните команду `alembic upgrade head`
 
-6. **Запустите проект**:
+7. **Запустите проект**:
    Запустите проект командой: `uvicorn app.main:app --reload`
 
-7. **Swagger UI будет доступен по URL**:
+8. **Swagger UI будет доступен по URL**:
    ```
    http://localhost:8080/api/openapi
    ```
